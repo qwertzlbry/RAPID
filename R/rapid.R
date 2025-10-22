@@ -172,7 +172,7 @@ rapid <- function(original_data,
 
   # Categorical evaluation (sub function)---------------------------------------
   if (is.factor(A)) {
-    eval <- evaluate_categorical(A, B, tau)
+    eval <- evaluate_categorical(A, B, tau, original_data)
   } else {
   # Continuous evaluation (sub function)----------------------------------------
     eval <- evaluate_numeric(A, B, original_data, error_metric, epsilon, epsilon_type)

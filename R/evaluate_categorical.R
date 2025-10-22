@@ -4,7 +4,7 @@
 #' Computes the RAPID metric for a categorical sensitive attribute by comparing
 #' predicted class probabilities from a model trained on synthetic data against
 #' the true labels in the original data.
-#'
+#' @param original_data Data frame of original data.
 #' @param true_labels A factor vector of true class labels (the sensitive attribute in the original data).
 #' @param predicted_probs A matrix or data frame of predicted class probabilities
 #'        (rows = observations, columns = classes, typically output from predict()).
@@ -16,7 +16,7 @@
 #'   \item{true_probs}{Vector of predicted probabilities for the true class label.}
 #'
 #' @export
-evaluate_categorical <- function(true_labels, predicted_probs, tau) {
+evaluate_categorical <- function(true_labels, predicted_probs, tau, original_data) {
   if (!is.factor(true_labels)) stop("true_labels must be a factor.")
   if (is.data.frame(predicted_probs)) predicted_probs <- as.matrix(predicted_probs)
   if (is.null(colnames(predicted_probs))) stop("predicted_probs must have column names matching the levels of true_labels.")
