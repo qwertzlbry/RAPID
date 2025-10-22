@@ -118,8 +118,8 @@ rapid <- function(original_data,
                   trace = FALSE,
                   ...) {
 
-  if(trace) {
-    time_start <- Sys.time()
+  if (trace){
+  time_start <- Sys.time()
   }
 
   log_msg <- function(...) if (trace) message(...)
@@ -190,3 +190,4 @@ rapid <- function(original_data,
 #' @rdname rapid
 #' @export
 risk_inferential <- function(...) rapid(...)
+

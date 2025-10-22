@@ -8,7 +8,7 @@
 #'
 #' @param A Vector of true sensitive values (numeric).
 #' @param B Vector of predicted values (numeric), from a model trained on synthetic data.
-#' @param truth Data frame of original data (for reporting records with high-risk predictions).
+#' @param original_data Data frame of original data (for reporting records with high-risk predictions).
 #' @param method Error metric: one of \code{"mae"}, \code{"rmse"}, \code{"rmae"}, or \code{"rrmse"}.
 #' @param epsilon Numeric threshold (absolute error or percentage).
 #' @param epsilon_type Threshold type: either \code{"Value"} for absolute error, or \code{"Percentage"}.
@@ -16,22 +16,22 @@
 #' @return A list containing:
 #' \describe{
 #'   \item{rows_risk_n}{Number of records with small prediction error (at-risk cases).}
-#'   \item{rows_risk_p}{Percentage of at-risk records relative to \code{truth}.}
+#'   \item{rows_risk_p}{Percentage of at-risk records relative to \code{original_data}.}
 #'   \item{rows_risk_df}{Data frame of those records, including predicted and observed values and error metric.}
 #' }
 #'
 #' @export
-evaluate_numeric <- function(A, B, truth,
+evaluate_numeric <- function(A, B, original_data,
                              method,
                              epsilon,
                              epsilon_type) {
-  
+
   epsilon_type <- match.arg(epsilon_type, choices = c("Value", "Percentage"))
-  
+
   if (!is.numeric(epsilon)) {
     stop("`epsilon` must be numeric and represent either a raw error or percentage.")
   }
-  
+
   # Compute absolute error-based metric
   measure <- switch(method,
                     mae   = abs(A - B),
@@ -40,16 +40,16 @@ evaluate_numeric <- function(A, B, truth,
                     rrmse = sqrt((A - B)^2) / stats::sd(A),
                     stop("Unsupported method. Use 'mae', 'rmse', 'rmae', or 'rrmse'.")
   )
-  
+
   # Evaluate threshold match
   switch(epsilon_type,
-         
+
          Value = {
            idx <- which(measure < epsilon)
            label <- method
            extra_col <- measure[idx]
          },
-         
+
          Percentage = {
            # Relative error: avoid division by zero
            relative_error <- ifelse(
@@ -61,17 +61,17 @@ evaluate_numeric <- function(A, B, truth,
            extra_col <- relative_error[idx]
          }
   )
-  
+
   # Output reporting table
-  result <- data.frame(truth[idx, , drop = FALSE],
+  result <- data.frame(original_data[idx, , drop = FALSE],
                        Original = A[idx],
                        Predicted = B[idx],
                        Dist.Metric = extra_col)
   colnames(result)[ncol(result)] <- label
-  
+
   return(list(
     rows_risk_n = length(idx),
-    rows_risk_p = 100 * length(idx) / nrow(truth),
+    rows_risk_p = 100 * length(idx) / nrow(original_data),
     rows_risk_df = result
   ))
 }
