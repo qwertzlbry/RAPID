@@ -1,0 +1,614 @@
+---
+title: "Problem mit dem Relative Confidence Score (RCS) Ansatz"
+subtitle: "Analyse und Lösungsvorschlag"
+author: "Oscar Thees"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: flatly
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.width = 10, fig.height = 6)
+library(dplyr)
+library(ggplot2)
+library(knitr)
+library(progressr)
+library(tidyverse)
+source("simulate_microdata.R")
+r_files <- list.files("../R", pattern = "\\.R$", full.names = TRUE)
+invisible(lapply(r_files, source))
+```
+
+# Abstract
+
+**Problem:** Der aktuelle Relative Confidence Score (RCS) Ansatz zeigt
+ein kontraintuitives Verhalten: Das gemessene Disclosure Risk sinkt,
+wenn die Modellgenauigkeit steigt. Dies widerspricht der grundlegenden
+Logik von inferential disclosure risk.
+
+**Ursache:** Die Verwendung unserer class-conditional baseline führt
+dazu, dass bei hoher Modellgenauigkeit alle Beobachtungen innerhalb
+einer Klasse ähnliche Vorhersagen erhalten, wodurch die relativen Scores
+gegen 1 konvergieren.
+
+**Lösung:** Wechsel zu einer marginal baseline aus den Original-Daten mit normalisierter Verbesserung, die tatsächlich misst, ob eine Inferenz besser als die Basisrate ist und fair über alle Klassen hinweg ist.
+
+------------------------------------------------------------------------
+
+# 1. Das Problem: Simulation zeigt kontraintuitives Verhalten
+
+## 1.1 Simulationssetup
+
+Wir variieren die dependency strength (`dep`) von 0 (unabhängige
+Variablen) bis 100 (starke Abhängigkeiten) und messen: - Accuracy: Wie
+gut kann das Modell `disease_status` vorhersagen? - Confidence Rate:
+Anteil der Beobachtungen mit `r_i > τ` (RCS_conditional)
+
+```{r simulation_conceptual, eval=FALSE}
+# Konzeptueller Code (nicht ausgeführt, nur zur Illustration)
+for (dep in seq(0, 100, by = 0.5)) {
+  truth <- simulate_microdata(dep = dep, n = 1000)
+  synth <- synthpop::syn(truth, m = 1)$syn
+  
+  # Train model on synthetic, predict on original
+  rapid_result <- rapid(
+    original_data = truth,
+    synthetic_data = synth,
+    quasi_identifiers = c("age", "income", "education"),
+    sensitive_attribute = "disease_status",
+    tau = 1.25
+  )
+  
+  # Record: dep, accuracy, confidence_rate
+}
+```
+
+## 1.2 Erwartetes vs. beobachtetes Verhalten
+
+Erwartung (für inferential disclosure risk):
+
+-   **Niedrige dependency** → Modell kann nichts lernen → schlechte
+    Vorhersagen → **niedrige Risk**
+
+-   **Hohe dependency** → Modell lernt Zusammenhänge → gute Vorhersagen
+    → **hohe Risk**
+
+**Tatsächliches Verhalten mit τ = 1.25:**
+
+```{r load_results, echo=FALSE}
+# Simulierte Ergebnisse (Platzhalter - durch echte Daten ersetzen)
+set.seed(42)
+dep_values <- seq(0, 100, by = 2)
+n_rep <- 3
+# results_broken <- data.frame(
+#   dep = dep_values,
+#   mean_acc = 0.67 + 0.30 * (1 - exp(-dep_values/10)),
+#   mean_conf = 0.23 * exp(-dep_values/8) + 0.01
+# )
+
+set.seed(42)
+total_steps <- length(dep_values) * n_rep
+sim_seeds <- sample.int(1e6, size = total_steps)
+# Use progressor
+results <- with_progress({
+  p <- progressor(steps = total_steps)
+
+  map_dfr(dep_values, function(dep) {
+    map_dfr(1:n_rep, function(rep_id) {
+      p(message = sprintf("dep=%.1f, rep=%d", dep, rep_id))  # update progress bar
+
+      rep_index <- (which(dep_values == dep) - 1) * n_rep + rep_id
+      myseed <- sim_seeds[rep_index]
+      truth <- simulate_microdata(dep = dep, n = 1000, seed = myseed)
+      synth <- synthpop::syn(truth, m = 1, print.flag = FALSE, seed = myseed + 1)$syn
+
+      rapid_result <- rapid(
+        original_data = truth,
+        synthetic_data = synth,
+        quasi_identifiers = c("age", "income", "education"),
+        sensitive_attribute = "disease_status",
+        cat_eval_method = "RCS_conditional",
+        model_type = "rf",
+        tau = 1.25,
+        trace = FALSE
+      )
+
+        # # health_score R2
+        # lm_health <- lm(health_score ~ age + income + education, data = x)
+        # R2_health <- summary(lm_health)$r.squared
+
+        # disease_status pseudo R2
+        mod_disease <- nnet::multinom(disease_status ~ age + income + education + health_score, data = synth, trace = FALSE)
+        ll_null <- logLik(update(mod_disease, . ~ 1))
+        ll_full <- logLik(mod_disease)
+        R2_disease <- 1 - as.numeric(ll_full) / as.numeric(ll_null)
+
+
+      tibble(
+        rep = rep_id,
+        dep = dep,
+        confidence_rate = rapid_result$risk$confidence_rate,
+        accuracy = rapid_result$metrics$accuracy,
+        R2 = R2_disease
+      )
+    })
+  })
+})
+results
+summary_results <- results %>%
+  group_by(dep) %>%
+  summarise(
+    mean_conf = mean(confidence_rate),
+    sd_conf = sd(confidence_rate),
+    mean_acc = mean(accuracy),
+    sd_acc = sd(accuracy),
+    .groups = "drop"
+  )
+ggplot(summary_results, aes(x = dep)) +
+  # Confidence Rate
+  geom_line(aes(y = mean_conf), color = "steelblue", size = 1.2) +
+  geom_ribbon(aes(ymin = mean_conf - sd_conf,
+                  ymax = mean_conf + sd_conf),
+              fill = "steelblue", alpha = 0.2) +
+
+  # Accuracy
+  geom_line(aes(y = mean_acc), color = "firebrick", size = 1.2) +
+  geom_ribbon(aes(ymin = mean_acc - sd_acc,
+                  ymax = mean_acc + sd_acc),
+              fill = "firebrick", alpha = 0.2) +
+
+  labs(
+    title = "Attribute Disclosure Risk and Accuracy vs Dependency Strength",
+    subtitle = "Mean ± 1 SD over repeated simulations (n = 100 per dep)",
+    x = expression(kappa~"(dependency strength)"),
+    y = "Rate",
+    caption = "Metrics: Confidence Rate (steelblue), Accuracy (firebrick)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),
+    plot.title = element_text(face = "bold"),
+    legend.position = "none"
+  ) +
+  scale_x_continuous(breaks = unique(results$dep), minor_breaks = NULL) +
+  coord_cartesian(ylim = c(0, 1))
+```
+
+-   **Das Problem:** Bei zunehmender dependency geht Risk (blau) runter,
+    während Accuracy (rot) steigt.
+
+------------------------------------------------------------------------
+
+# 2. Ursachenanalyse: Warum versagt der class-conditional baseline?
+
+## 2.1 Vereinfachtes Beispiel
+
+### Szenario 1: Schlechtes Modell (niedrige dependency)
+
+```{r example_poor_model}
+# 4 Patienten mit "diabetic" als true label
+true_labels <- factor(c("diabetic", "diabetic", "diabetic", "diabetic"),
+                      levels = c("healthy", "diabetic", "hypertensive"))
+
+# Modell ist schlecht: verrauschte, variable Vorhersagen
+predicted_probs_poor <- matrix(
+  c(0.40, 0.30, 0.30,  # Patient 1: 0.30 für diabetic
+    0.25, 0.60, 0.15,  # Patient 2: 0.60 für diabetic (Ausreisser)
+    0.50, 0.35, 0.15,  # Patient 3: 0.35 für diabetic
+    0.45, 0.40, 0.15), # Patient 4: 0.40 für diabetic
+  ncol = 3, byrow = TRUE,
+  dimnames = list(NULL, c("healthy", "diabetic", "hypertensive"))
+)
+
+# g_i: Vorhersage für true class
+g_i_poor <- predicted_probs_poor[, "diabetic"]
+
+# b_i: Class-conditional baseline (Durchschnitt über alle diabetic-Patienten)
+b_i_poor <- mean(g_i_poor)
+
+# r_i: Relative score
+r_i_poor <- g_i_poor / b_i_poor
+
+tau <- 1.25
+
+result_poor <- data.frame(
+  Patient = 1:4,
+  g_i = g_i_poor,
+  b_i = b_i_poor,
+  r_i = round(r_i_poor, 2),
+  at_risk = r_i_poor > tau
+)
+
+kable(result_poor, caption = "Schlechtes Modell: Variable Vorhersagen")
+```
+
+**Ergebnis:** Patient 2 ist ein Ausreisser innerhalb der diabetic-Klasse
+→ `r_i = 1.46 > 1.25` → **at risk**
+
+**Confidence Rate:** `r mean(r_i_poor > tau) * 100`%
+
+------------------------------------------------------------------------
+
+### Szenario 2: Gutes Modell (hohe dependency)
+
+```{r example_good_model}
+# Modell ist GUT: präzise und konsistente Vorhersagen
+predicted_probs_good <- matrix(
+  c(0.05, 0.85, 0.10,  # Patient 1: 0.85 für diabetic
+    0.08, 0.87, 0.05,  # Patient 2: 0.87 für diabetic
+    0.06, 0.84, 0.10,  # Patient 3: 0.84 für diabetic
+    0.07, 0.86, 0.07), # Patient 4: 0.86 für diabetic
+  ncol = 3, byrow = TRUE,
+  dimnames = list(NULL, c("healthy", "diabetic", "hypertensive"))
+)
+
+g_i_good <- predicted_probs_good[, "diabetic"]
+b_i_good <- mean(g_i_good)
+r_i_good <- g_i_good / b_i_good
+
+result_good <- data.frame(
+  Patient = 1:4,
+  g_i = g_i_good,
+  b_i = round(b_i_good, 3),
+  r_i = round(r_i_good, 2),
+  at_risk = r_i_good > tau
+)
+
+kable(result_good, caption = "Gutes Modell: Konsistente Vorhersagen")
+```
+
+**Ergebnis:** Alle Patienten haben ähnliche Vorhersagen → alle
+`r_i ≈ 1.0` → **niemand at risk**
+
+**Confidence Rate:** `r mean(r_i_good > tau) * 100`%
+
+------------------------------------------------------------------------
+
+## 2.2 Problematik
+
+```{r problem_visualization, echo=FALSE, fig.height=5}
+df_comparison <- data.frame(
+  Modell = rep(c("Schlecht (dep=0)", "Gut (dep=100)"), each = 2),
+  Metrik = rep(c("Accuracy", "Measured Risk"), 2),
+  Wert = c(0.25, 0.25, 1, 0.00)
+)
+
+ggplot(df_comparison, aes(x = Modell, y = Wert, fill = Metrik)) +
+  geom_col(position = "dodge", width = 0.7) +
+  geom_text(aes(label = scales::percent(Wert)), 
+            position = position_dodge(width = 0.7), 
+            vjust = -0.5, size = 5) +
+  scale_fill_manual(values = c("Accuracy" = "firebrick", "Measured Risk" = "steelblue")) +
+  labs(
+    title = "Das Paradoxon: Bessere Modelle zeigen niedrigere Risk",
+    subtitle = "Class-conditional baseline misst 'Ausreisser innerhalb der Klasse', nicht 'Inferierbarkeit'",
+    y = "Wert",
+    x = NULL
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "bottom") +
+  coord_cartesian(ylim = c(0, 1))
+```
+
+**Warum passiert das?**
+
+Der class-conditional baseline `b_i = mean(g_i | true_class = k)` misst:
+
+> "Ist diese Beobachtung ungewöhnlich im Vergleich zu anderen in derselben Klasse?"
+
+Das ist nicht gleichbedeutend mit:
+
+> "Kann ein Angreifer das Attribut besser als die Basisrate vorhersagen?"
+
+Wenn alle Vorhersagen innerhalb einer Klasse gleich gut sind → keine Ausreisser → `r_i → 1` → niedrige gemessene Risk
+
+Aber tatsächlich: hohe Accuracy = hohe inferential disclosure risk
+
+------------------------------------------------------------------------
+
+# 3. Lösung: Marginal Baseline mit normalisierter Verbesserung
+
+## 3.1 Warum Marginal Baseline?
+
+**Zwei mögliche Baselines:**
+
+### Option A: Random Guessing (Uniform)
+
+```{r}
+n_classes <- 3  # healthy, diabetic, hypertensive
+baseline_uniform <- 1 / n_classes
+cat("Baseline (random guessing):", baseline_uniform, "\n")
+```
+
+**Problem:** Wenn das Modell nur die marginalen Verteilungen lernt (70% healthy, 15% diabetic, 15% hypertensive), würde healthy als "at risk" markiert, obwohl kein echtes disclosure stattfindet (nur inferential attribute disclosure aber kein re-identification).
+
+### Option B: Marginal Frequencies (aus Original-Daten)
+
+```{r}
+# Realistische Verteilung aus ORIGINAL dataset
+# (konsistent mit numerischem Fall: Vergleich mit Original-Werten)
+marginal_freq_original <- c(healthy = 0.70, diabetic = 0.18, hypertensive = 0.12)
+print(marginal_freq_original)
+```
+
+**Interpretation:** Baseline ist "blind nach Häufigkeit raten". Wenn das Modell nur diese Basisrate reproduziert, sollte niemand at risk sein.
+
+Wir sollten Option B nehmen, weil sie realistischer ist und korrekt erkennt, wenn die Vorhersagen nicht besser sind als die Original-Basisrate 
+
+## 3.2 Problem: Klassenabhängige Threshholds
+
+Mit der einfachen Ratio `r_i = g_i / b_i` (wobei g_i die vorhergesagte Wahrscheinlichkeit für die wahre Klasse ist) bedeutet **derselbe τ-Wert unterschiedliche absolute Anforderungen** für verschiedene Klassen:
+
+**Beispiel mit τ = 1.25:**
+
+- **Healthy** (b=0.70): braucht g_i > 0.875 für r_i > 1.25
+- **Diabetic** (b=0.18): braucht g_i > 0.225 für r_i > 1.25
+
+**Das Problem:**
+
+Eine diabetic-Person mit g_i = 0.50 (Modell sagt 50% diabetic - mittelmässige Vorhersage) wird als "at risk" markiert (r_i = 2.78), während eine healthy-Person mit g_i = 0.80 (Modell sagt 80% healthy - bessere Vorhersage!) nicht als "at risk" markiert wird (r_i = 1.14).
+
+Derselbe τ-Schwellenwert bedeutet also unterschiedliche Dinge für verschiedene Klassen. Seltene Klassen haben viel niedrigere absolute Anforderungen, was die Interpretation von τ inkonsistent macht und Vergleche zwischen Klassen unmöglich.
+
+---
+
+## 3.3 Lösung: Normalisierte Verbesserung
+
+Wir messen die Verbesserung über die Baseline als Anteil der maximal möglichen Verbesserung.
+
+### Formel
+
+$$\text{normalized_gain}_i = \frac{g_i - b_i}{1 - b_i}$$
+
+where,
+
+- **g_i**: Vorhergesagte Wahrscheinlichkeit für die wahre Klasse 
+- **b_i**: Baseline aus Original-Daten 
+- **Zähler (g_i - b_i)**: Absolute Verbesserung 
+- **Nenner (1 - b_i)**: Maximal mögliche Verbesserung 
+
+**Ergebnis:** Ein Wert der angibt ob das Modell signifikant mehr gelernt als nur die Basisrate.
+
+
+---
+
+## 3.4 Neuberechnung mit korrigierter Baseline
+
+### Schlechtes Modell mit normalisierter Verbesserung
+
+```{r}
+g_i_poor <- c(0.30, 0.60, 0.35, 0.40)
+
+# True class ist diabetic (baseline aus ORIGINAL = 0.18)
+b_i_poor <- rep(0.18, 4)
+
+# Normalisierte Verbesserung
+max_improvement <- 1 - b_i_poor  # 0.82 für alle
+gain_poor <- (g_i_poor - b_i_poor) / max_improvement
+
+tau_normalized <- 0.3  # 30% Verbesserung erforderlich
+
+result_poor_new <- data.frame(
+  Patient = 1:4,
+  g_i = g_i_poor,
+  baseline_original = b_i_poor,
+  normalized_gain = round(gain_poor, 3),
+  at_risk = gain_poor > tau_normalized
+)
+
+kable(result_poor_new, caption = "Schlechtes Modell mit normalisierter Verbesserung (Baseline aus Original)")
+cat("Confidence Rate:", mean(gain_poor > tau_normalized) * 100, "%\n")
+```
+
+### Gutes Modell mit normalisierter Verbesserung
+
+```{r}
+g_i_good <- c(0.85, 0.87, 0.84, 0.86)
+b_i_good <- rep(0.18, 4)
+
+gain_good <- (g_i_good - b_i_good) / (1 - b_i_good)
+
+result_good_new <- data.frame(
+  Patient = 1:4,
+  g_i = g_i_good,
+  baseline_original = b_i_good,
+  normalized_gain = round(gain_good, 3),
+  at_risk = gain_good > tau_normalized
+)
+
+kable(result_good_new, caption = "Gutes Modell mit normalisierter Verbesserung (Baseline aus Original)")
+cat("Confidence Rate:", mean(gain_good > tau_normalized) * 100, "%\n")
+```
+
+**Ergebnis:** 
+
+- Schlechtes Modell: Niedrige gain-Werte (15-51%) → wenige at risk
+- Gutes Modell: Hohe gain-Werte (82-84%) → alle at risk
+- Faire Behandlung aller Klassen
+
+------------------------------------------------------------------------
+
+## 3.5 Vergleich der Ansätze
+
+```{r comparison_table, echo=FALSE}
+comparison <- data.frame(
+  Ansatz = c("Class-conditional baseline (aktuell)", 
+             "Marginal baseline - Random (1/K)", 
+             "Marginal baseline - Original frequencies + normalized gain (vorgeschlagen)"),
+  Formel = c("b_i = mean(g_i | class = k)", 
+             "b_i = 1/K", 
+             "gain_i = (g_i - b_i^orig) / (1 - b_i^orig)"),
+  Misst = c("Ausreisser innerhalb der Klasse", 
+            "Inferierbarkeit vs. Zufall", 
+            "Inferierbarkeit vs. echte Basisrate (konsistent mit numerischem Fall)"),
+  `Schlechtes.Modell` = c("Hohe Risk (25%)", 
+                          "Variable Risk", 
+                          "Niedrige Risk (25%)"),
+  `Gutes.Modell` = c("Niedrige Risk (0%)", 
+                     "Hohe Risk (100%)", 
+                     "Hohe Risk (100%)"),
+  Problem = c("Paradox: Risk sinkt bei besserem Modell; inkonsistent mit intruder model", 
+              "Unfair für seltene Klassen bei festem tau; healthy immer at risk", 
+              "Keine – fair, konsistent, und korrekt ✓")
+)
+
+kable(comparison, 
+      caption = "Vergleich: Class-conditional vs. Marginal Baselines",
+      col.names = c("Ansatz", "Formel", "Misst", "Schlechtes Modell", "Gutes Modell", "Problem"))
+```
+
+------------------------------------------------------------------------
+
+# 4. Code-Änderung
+
+## 4.1 Aktueller Code
+
+```{r current_code, eval=FALSE}
+RCS_conditional = {
+    observed_classes <- intersect(unique(true_labels), colnames(predicted_probs))
+    baseline_by_class <- sapply(unique(as.character(true_labels)), function(k) {
+      mean(predicted_probs[which(as.character(true_labels) == k), k])
+    })
+    names(baseline_by_class) <- unique(as.character(true_labels))
+    b_i <- baseline_by_class[as.character(true_labels)]  # CLASS-CONDITIONAL
+    
+    r_i <- g_i / b_i
+    confidence_rate <- sum(r_i > tau) / length(r_i)
+```
+
+## 4.2 Korrigierter Code (Vorschlag)
+
+```{r corrected_code, eval=FALSE}
+RCS_marginal =  {
+    # Marginal baseline from synthetic dataset
+    marginal_freq_original <- prop.table(table(original_data[["sensitive_attribute"]]))
+    b_i <- marginal_freq_original[as.character(true_labels)]
+    # Normalized improvement (0 bis 1)
+    max_improvement <- 1 - b_i
+    normalized_gain <- (g_i - b_i) / max_improvement
+
+    at_risk <- normalized_gain > tau
+
+    confidence_rate <- sum(at_risk) / length(at_risk)
+```
+
+## 4.3 Validierung: Simulation mit korrigiertem Ansatz
+
+Nach Implementierung der Code-Änderung zeigt die Simulation das
+erwartete Verhalten:
+
+**Threshold:** e.g. $\tau = 0.3$ (d.h., Vorhersagen müssen mindestens 30% besser sein als blind nach der Original-Verteilung zu raten, gemessen am maximal möglichen Verbesserungspotential).
+
+```{r new_res, echo=FALSE}
+# Simulierte Ergebnisse (Platzhalter - durch echte Daten ersetzen)
+set.seed(42)
+dep_values <- seq(0, 100, by = 2)
+n_rep <- 3
+
+set.seed(42)
+total_steps <- length(dep_values) * n_rep
+sim_seeds <- sample.int(1e6, size = total_steps)
+# Use progressor
+results <- with_progress({
+  p <- progressor(steps = total_steps)
+
+  map_dfr(dep_values, function(dep) {
+    map_dfr(1:n_rep, function(rep_id) {
+      p(message = sprintf("dep=%.1f, rep=%d", dep, rep_id))  # update progress bar
+
+      rep_index <- (which(dep_values == dep) - 1) * n_rep + rep_id
+      myseed <- sim_seeds[rep_index]
+      truth <- simulate_microdata(dep = dep, n = 1000, seed = myseed)
+      synth <- synthpop::syn(truth, m = 1, print.flag = FALSE, seed = myseed + 1)$syn
+
+      rapid_result <- rapid(
+        original_data = truth,
+        synthetic_data = synth,
+        quasi_identifiers = c("age", "income", "education"),
+        sensitive_attribute = "disease_status",
+        cat_eval_method = "RCS_marginal",
+        model_type = "rf",
+        
+        tau = 0.3, # in RCS_conditional we used 1.25,
+        trace = FALSE
+      )
+
+        # # health_score R2
+        # lm_health <- lm(health_score ~ age + income + education, data = x)
+        # R2_health <- summary(lm_health)$r.squared
+
+        # disease_status pseudo R2
+        mod_disease <- nnet::multinom(disease_status ~ age + income + education + health_score, data = synth, trace = FALSE)
+        ll_null <- logLik(update(mod_disease, . ~ 1))
+        ll_full <- logLik(mod_disease)
+        R2_disease <- 1 - as.numeric(ll_full) / as.numeric(ll_null)
+
+
+      tibble(
+        rep = rep_id,
+        dep = dep,
+        confidence_rate = rapid_result$risk$confidence_rate,
+        accuracy = rapid_result$metrics$accuracy,
+        R2 = R2_disease
+      )
+    })
+  })
+})
+results
+summary_results <- results %>%
+  group_by(dep) %>%
+  summarise(
+    mean_conf = mean(confidence_rate),
+    sd_conf = sd(confidence_rate),
+    mean_acc = mean(accuracy),
+    sd_acc = sd(accuracy),
+    .groups = "drop"
+  )
+ggplot(summary_results, aes(x = dep)) +
+  # Confidence Rate
+  geom_line(aes(y = mean_conf), color = "steelblue", size = 1.2) +
+  geom_ribbon(aes(ymin = mean_conf - sd_conf,
+                  ymax = mean_conf + sd_conf),
+              fill = "steelblue", alpha = 0.2) +
+
+  # Accuracy
+  geom_line(aes(y = mean_acc), color = "firebrick", size = 1.2) +
+  geom_ribbon(aes(ymin = mean_acc - sd_acc,
+                  ymax = mean_acc + sd_acc),
+              fill = "firebrick", alpha = 0.2) +
+
+  labs(
+    title = "Attribute Disclosure Risk and Accuracy vs Dependency Strength",
+    subtitle = "Mean ± 1 SD over repeated simulations (n = 100 per dep)",
+    x = expression(kappa~"(dependency strength)"),
+    y = "Rate",
+    caption = "Metrics: Confidence Rate (steelblue), Accuracy (firebrick)"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 8),
+    plot.title = element_text(face = "bold"),
+    legend.position = "none"
+  ) +
+  scale_x_continuous(breaks = unique(results$dep), minor_breaks = NULL) +
+  coord_cartesian(ylim = c(0, 1))
+```
+Jetzt verhält sich die Risk-Metrik wie erwartet:
+
+-   Niedrige dependency → schlechte Vorhersagen → niedriges Risk
+-   Hohe dependency → gute Vorhersagen → hohes Risk
+
+------------------------------------------------------------------------
+
+# Anhang: R Session Info
+
+```{r session_info}
+sessionInfo()
+```

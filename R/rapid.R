@@ -113,6 +113,7 @@ rapid <- function(original_data,
                   error_metric = c("mae", "rmse", "rmae", "rrmse"),
                   epsilon_type = c("Percentage", "Value"),
                   epsilon = NULL,
+                  cat_eval_method =c("RCS_conditional", "RCS_marginal", "NCE"),
                   tau = 1,
                   seed = 2025,
                   trace = FALSE,
@@ -172,7 +173,7 @@ rapid <- function(original_data,
 
   # Categorical evaluation (sub function)---------------------------------------
   if (is.factor(A)) {
-    eval <- evaluate_categorical(A, B, tau, original_data)
+    eval <- evaluate_categorical(A, B, tau, original_data, cat_eval_method, sensitive_attribute)
   } else {
   # Continuous evaluation (sub function)----------------------------------------
     eval <- evaluate_numeric(A, B, original_data, error_metric, epsilon, epsilon_type)
