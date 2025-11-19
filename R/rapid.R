@@ -11,10 +11,10 @@
 #' @param quasi_identifiers Character vector of quasi-identifiers used for inference.
 #' @param sensitive_attribute Name of the sensitive variable to be predicted.
 #' @param model_type Model type to use for inference: "lm" (linear) or "rf" (random forest).
-#' @param error_metric Error metric for continuous variables: "mae", "rmse", "rmae", or "rrmse".
-#' @param epsilon_type Either "Percentage" or "Value".
-#' @param epsilon Threshold for continuous attributes (numeric).
-#' @param tau Threshold for categorical risk (numeric).
+#' @param num_error_metric Error metric for continuous variables: "mae", "rmse", "rmae", or "rrmse".
+#' @param num_epsilon_type Either "Percentage" or "Value".
+#' @param num_epsilon Threshold for continuous attributes (numeric).
+#' @param cat_tau Threshold for categorical risk (numeric).
 #' @param seed Optional random seed.
 #' @param trace Logical; whether to print diagnostic messages.
 #' @param ... Additional arguments passed to model fitting.
@@ -61,9 +61,9 @@
 #'   quasi_identifiers = c("age", "income", "education"),
 #'   sensitive_attribute = "health_score",
 #'   model_type = "rf",
-#'   error_metric = "rmse",                  # root mean squared error
-#'   epsilon_type = "Percentage",
-#'   epsilon = 10,                           # 10% relative error threshold
+#'   num_error_metric = "rmse",                  # root mean squared error
+#'   num_epsilon_type = "Percentage",
+#'   num_epsilon = 10,                           # 10% relative error threshold
 #'   trace = TRUE
 #' )
 #'
@@ -96,7 +96,7 @@
 #'   quasi_identifiers = c("age", "income", "education"),
 #'   sensitive_attribute = "disease_status",
 #'   model_type = "rf",
-#'   tau = 1.2
+#'   cat_tau = 1.2
 #' )
 #'
 #' # Print result summary
@@ -107,16 +107,23 @@ rapid <- function(original_data,
                   synthetic_data,
                   quasi_identifiers,
                   sensitive_attribute,
-                  numeric_na_strategy = c("constant", "drop", "median"),
-                  constant_value = 0,
                   model_type = c("lm", "rf"),
-                  error_metric = c("mae", "rmse", "rmae", "rrmse"),
-                  epsilon_type = c("Percentage", "Value"),
-                  epsilon = NULL,
-                  cat_eval_method =c("RCS_conditional", "RCS_marginal", "NCE"),
-                  tau = 1,
+
+                  # Numeric-specific
+                  num_na_strategy = c("constant", "drop", "median"), #num_na_strategy
+                  num_constant_value = 0, #num_constant_value
+                  num_error_metric = c("mae", "rmse", "rmae", "rrmse"), #num_error_metric
+                  num_epsilon_type = c("Percentage", "Value"), # num_epsilon_type
+                  num_epsilon = NULL, #num_epsilon
+
+                  # Categorical-specific
+                  cat_eval_method =c("RCS_conditional", "RCS_marginal", "NCE"), #cat_eval_method
+                  cat_tau = 1, #cat_tau
+
+                  # Varia
                   seed = 2025,
                   trace = FALSE,
+                  return_all_records = FALSE,
                   ...) {
 
   if (trace){
@@ -127,28 +134,40 @@ rapid <- function(original_data,
 
   # Argument matching and setup
   model_type <- match.arg(model_type)
-  error_metric <- tolower(error_metric)
-  error_metric <- match.arg(error_metric, choices = c("mae", "rmse", "rmae", "rrmse"))
-  epsilon_type <- match.arg(epsilon_type)
+  num_error_metric <- tolower(num_error_metric)
+  num_error_metric <- match.arg(num_error_metric, choices = c("mae", "rmse", "rmae", "rrmse"))
+  num_epsilon_type <- match.arg(num_epsilon_type)
+  num_na_strategy <- match.arg(num_na_strategy)
+  cat_eval_method <- match.arg(cat_eval_method)
+
+
+  # Set seed
   if (!is.null(seed)) set.seed(seed)
 
+  # Validation
   stopifnot(is.data.frame(original_data), is.data.frame(synthetic_data))
   stopifnot(all(c(quasi_identifiers, sensitive_attribute) %in% names(original_data)))
   stopifnot(all(c(quasi_identifiers, sensitive_attribute) %in% names(synthetic_data)))
+
+  sensitive_attr_vec <- original_data[[sensitive_attribute]]
+  is_categorical <- is.factor(sensitive_attr_vec) || is.character(sensitive_attr_vec)
+
 
   # Compatibility check
   if (model_type == "lm" && is.factor(original_data[[sensitive_attribute]])) {
     stop("Model 'lm' is not suitable for categorical sensitive variables. Use 'rf'
          or another classification model instead.")
   }
-
+  if (trace) {
+      cat("  RAPID: Running Single Evaluation Mode\n")
+    }
   # Subset to needed variables--------------------------------------------------
   original_data <- original_data[, c(sensitive_attribute, quasi_identifiers)]
   synthetic_data <- synthetic_data[, c(sensitive_attribute, quasi_identifiers)]
 
   # Handle NA in sensitive and known variables (sub function)-------------------
   res <- handle_sensitive_na(original_data, synthetic_data, sensitive_attribute,
-                             numeric_na_strategy, constant_value)
+                             num_na_strategy, num_constant_value)
   original_data <- res$original_data
   synthetic_data <- res$synthetic_data
 
@@ -173,10 +192,10 @@ rapid <- function(original_data,
 
   # Categorical evaluation (sub function)---------------------------------------
   if (is.factor(A)) {
-    eval <- evaluate_categorical(A, B, tau, original_data, cat_eval_method, sensitive_attribute)
+    eval <- evaluate_categorical(A, B, cat_tau, original_data, cat_eval_method, sensitive_attribute, return_all_records)
   } else {
   # Continuous evaluation (sub function)----------------------------------------
-    eval <- evaluate_numeric(A, B, original_data, error_metric, epsilon, epsilon_type)
+    eval <- evaluate_numeric(A, B, original_data, num_error_metric, num_epsilon, num_epsilon_type, return_all_records)
   }
 
   if (trace){
