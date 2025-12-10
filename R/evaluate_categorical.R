@@ -125,7 +125,7 @@ evaluate_categorical <- function(A,
   if (is.null(colnames(predicted_probs)))
     stop("predicted_probs must have column names matching the levels of true_labels.")
   if (is.null(cat_eval_method)) {
-    cat_eval_method <- "RCS_conditional" # default
+    cat_eval_method <- "RCS_marginal" # default
   } else {
     cat_eval_method <- match.arg(cat_eval_method)
   }
@@ -133,116 +133,121 @@ evaluate_categorical <- function(A,
   # g_i: predicted probability for the true class
   g_i <- predicted_probs[cbind(1:nrow(predicted_probs), match(as.character(true_labels), colnames(predicted_probs)))]
 
-  switch(cat_eval_method, RCS_conditional = {
-    # Option 1 Relative Confidence Score ---------------------------------------
-    # observed class levels in both input and predictions
-    observed_classes <- intersect(unique(true_labels), colnames(predicted_probs))
+    switch(cat_eval_method,
 
-    # Original ---
-    # b_i: baseline probability for each observation based on true class
-    # b_i <- sapply(unique(as.character(true_labels)), function(k) {
-    #   mean(as.data.frame(predicted_probs)[which(as.character(true_labels) == k), k])
-    # })[match(as.character(true_labels), observed_classes)]
+    RCS_conditional = {
+                    # Option 1 Relative Confidence Score ---------------------------------------
+                    # observed class levels in both input and predictions
+                    observed_classes <- intersect(unique(true_labels), colnames(predicted_probs))
 
-    # FIX 1 ---
-    # Compute baseline for each class
-    baseline_by_class <- sapply(unique(as.character(true_labels)), function(k) {
-      mean(predicted_probs[which(as.character(true_labels) == k), k])
-    })
-    names(baseline_by_class) <- unique(as.character(true_labels))
+                    # Original ---
+                    # b_i: baseline probability for each observation based on true class
+                    # b_i <- sapply(unique(as.character(true_labels)), function(k) {
+                    #   mean(as.data.frame(predicted_probs)[which(as.character(true_labels) == k), k])
+                    # })[match(as.character(true_labels), observed_classes)]
 
-    # Map baseline to each observation
-    b_i <- baseline_by_class[as.character(true_labels)]
+                    # FIX 1 ---
+                    # Compute baseline for each class
+                    baseline_by_class <- sapply(unique(as.character(true_labels)), function(k) {
+                      mean(predicted_probs[which(as.character(true_labels) == k), k])
+                    })
+                    names(baseline_by_class) <- unique(as.character(true_labels))
 
-    #FIX 2 Marginal Baseline to be implemented ---
-    # n_classes <- ncol(predicted_probs)
-    # b_i <- rep(1 / n_classes, nrow(predicted_probs))
+                    # Map baseline to each observation
+                    b_i <- baseline_by_class[as.character(true_labels)]
+
+                    #FIX 2 Marginal Baseline to be implemented ---
+                    # n_classes <- ncol(predicted_probs)
+                    # b_i <- rep(1 / n_classes, nrow(predicted_probs))
 
 
-    # r_i: relative score per observation
-    r_i <- g_i / b_i
+                    # r_i: relative score per observation
+                    r_i <- g_i / b_i
 
-    # overall confidence rate: proportion of records with relative score > cat_tau
-    confidence_rate <- sum(r_i > cat_tau) / length(r_i)
+                    # overall confidence rate: proportion of records with relative score > cat_tau
+                    confidence_rate <- sum(r_i > cat_tau) / length(r_i)
 
-    #  Output reporting table
-    result <- data.frame(
-      original_data,
-      pre_labels = colnames(predicted_probs)[max.col(predicted_probs)] ,
-      true_probs = g_i,
-      base_prob = b_i,
-      relative_score = r_i,
-      cat_tau,
-      at_risk = ifelse(r_i > cat_tau, TRUE, FALSE)
-    )
-    if (return_all_records) {
-      result
-    } else {
-      result <- result[result$at_risk == TRUE, ]
-    }
+                    #  Output reporting table
+                    result <- data.frame(
+                      original_data,
+                      pre_labels = colnames(predicted_probs)[max.col(predicted_probs)] ,
+                      true_probs = g_i,
+                      base_prob = b_i,
+                      relative_score = r_i,
+                      cat_tau,
+                      at_risk = ifelse(r_i > cat_tau, TRUE, FALSE),
+                      stringsAsFactors = FALSE
+                    )
+                    if (return_all_records) {
+                      result
+                    } else {
+                      result <- result[as.logical(result$at_risk == TRUE), ]
+                    }
 
-    # table(colnames(predicted_probs)[max.col(predicted_probs)],
-    #       true_labels)
+                  # table(colnames(predicted_probs)[max.col(predicted_probs)],
+                  #       true_labels)
   }, RCS_marginal = {
-    # Marginal baseline from ORIGINAL dataset
-    marginal_freq_original <- prop.table(table(original_data[[sensitive_attribute]]))
-    b_i <- as.numeric(marginal_freq_original[as.character(true_labels)])
+                  # Marginal baseline from ORIGINAL dataset
+                  marginal_freq_original <- prop.table(table(original_data[[sensitive_attribute]]))
+                  b_i <- as.numeric(marginal_freq_original[as.character(true_labels)])
 
-    # Normalized improvement (0 to 1)
-    max_improvement <- 1 - b_i
-    normalized_gain <- (g_i - b_i) / max_improvement
+                  # Normalized improvement (0 to 1)
+                  max_improvement <- 1 - b_i
+                  normalized_gain <- (g_i - b_i) / max_improvement
 
-    # At risk when gain > cat_tau
-    at_risk <- normalized_gain > cat_tau
+                  # At risk when gain > cat_tau
+                  at_risk <- normalized_gain > cat_tau
 
-    confidence_rate <- sum(at_risk) / length(at_risk)
+                  confidence_rate <- sum(at_risk) / length(at_risk)
 
-    result <- data.frame(
-      original_data,
-      predicted_class = colnames(predicted_probs)[max.col(predicted_probs)],
-      true_prob = g_i,
-      baseline = b_i,
-      normalized_gain = normalized_gain,
-      cat_tau = cat_tau,
-      at_risk = at_risk
-    )
+                  result <- data.frame(
+                    original_data,
+                    predicted_class = colnames(predicted_probs)[max.col(predicted_probs)],
+                    true_prob = g_i,
+                    baseline = b_i,
+                    normalized_gain = normalized_gain,
+                    cat_tau = cat_tau,
+                    at_risk = at_risk,
+                    stringsAsFactors = FALSE
+                  )
 
-    if (return_all_records) {
-      result
-    } else {
-      result <- result[result$at_risk == TRUE, ]
-    }
+                  if (return_all_records) {
+                    result
+                  } else {
+                    result <- result[as.logical(result$at_risk == TRUE), ]
+                  }
 
 
   }, NCE =  {
-    # Option 2 Normalized Cross-Entropy ----------------------------------------
-    # Cross-entropy (information leaked)
-    ce <- -log(pmax(g_i, 1e-10))
-    # Normalize by max possible entropy
-    n_classes <- ncol(predicted_probs)
-    max_entropy <- log(n_classes)
-    normalized_ce <- ce / max_entropy
-    # Lower CE = better prediction = higher risk
-    # Convert to risk score: 1 - normalized_ce
-    risk_score <- 1 - normalized_ce
-    at_risk <- risk_score > cat_tau
+                  # Option 2 Normalized Cross-Entropy ----------------------------------------
+                  # Cross-entropy (information leaked)
+                  ce <- -log(pmax(g_i, 1e-10))
+                  # Normalize by max possible entropy
+                  n_classes <- ncol(predicted_probs)
+                  max_entropy <- log(n_classes)
+                  normalized_ce <- ce / max_entropy
+                  # Lower CE = better prediction = higher risk
+                  # Convert to risk score: 1 - normalized_ce
+                  risk_score <- 1 - normalized_ce
+                  at_risk <- risk_score > cat_tau
 
-    # overall risk rate: proportion of records being at risk
-    risk_rate <- sum(at_risk) / nrow(original_data)
+                  # overall risk rate: proportion of records being at risk
+                  risk_rate <- sum(at_risk) / nrow(original_data)
 
-    result <- data.frame(
-      original_data,
-      predicted_class = colnames(predicted_probs)[max.col(predicted_probs)],
-      true_prob = g_i,
-      risk_score = risk_score,
-      at_risk = at_risk
-    )
-    if (return_all_records) {
-      result
-    } else {
-      result <- result[result$at_risk == TRUE, ]
-    }
-  })
+                  result <- data.frame(
+                    original_data,
+                    predicted_class = colnames(predicted_probs)[max.col(predicted_probs)],
+                    true_prob = g_i,
+                    risk_score = risk_score,
+                    at_risk = at_risk,
+                    stringsAsFactors = FALSE
+                  )
+                  if (return_all_records) {
+                    result
+                  } else {
+                    result <- result[as.logical(result$at_risk == TRUE), ]
+                  }
+                })
 
   if (cat_eval_method == "RCS_conditional") {
     return(list(

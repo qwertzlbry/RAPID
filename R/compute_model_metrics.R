@@ -1,8 +1,8 @@
 #' @title Compute Basic Model Evaluation Metrics
 #'
 #' @description
-#' Computes evaluation metrics for classification (accuracy) or regression tasks 
-#' (MAE, RMSE, relative MAE, relative RMSE), used for assessing attacker model performance 
+#' Computes evaluation metrics for classification (accuracy) or regression tasks
+#' (MAE, RMSE, relative MAE, relative RMSE), used for assessing attacker model performance
 #' in the RAPID disclosure risk framework.
 #'
 #' @param A True values from the original dataset (numeric for continuous, factor for categorical).
@@ -33,8 +33,10 @@
 compute_model_metrics <- function(A, B) {
   if (is.factor(A)) {
     # Classification case
-    if (is.matrix(B)) {
-      pred_class <- colnames(B)[apply(B, 1, which.max)]
+    if (is.matrix(B) || is.data.frame(B)) {
+      max_idx <- apply(as.matrix(B), 1, which.max)
+      pred_class <- colnames(B)[max_idx]
+      pred_class <- factor(pred_class, levels = levels(A))
     } else {
       pred_class <- B
     }

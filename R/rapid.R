@@ -107,7 +107,7 @@ rapid <- function(original_data,
                   synthetic_data,
                   quasi_identifiers,
                   sensitive_attribute,
-                  model_type = c("lm", "rf"),
+                  model_type = c("lm", "rf", "cart", "gbm", "logit"),
 
                   # Numeric-specific
                   num_na_strategy = c("constant", "drop", "median"), #num_na_strategy
@@ -180,8 +180,15 @@ rapid <- function(original_data,
 
   # Fit model (sub function)----------------------------------------------------
   formula <- as.formula(paste(sensitive_attribute, "~", paste(quasi_identifiers, collapse = "+")))
-  fit <- fit_model(model_type, formula, synthetic_data, original_data, sensitive_attribute,
-                   lm.control = list(), ranger.control = list())
+  fit <- fit_model(model_type,
+                   formula, synthetic_data,
+                   original_data,
+                   sensitive_attribute,
+                   lm.control = list(),
+                   ranger.control = list(),
+                   rpart.control = list(),
+                   xgb.control = list()
+                   )
 
    # Predict on original data (sub function)------------------------------------
   A <- original_data[[sensitive_attribute]]

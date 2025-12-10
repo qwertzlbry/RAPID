@@ -16,8 +16,8 @@ rapid_result <- rapid(
   synthetic_data = synth,
   quasi_identifiers = c("age", "income", "education"),
   sensitive_attribute = "disease_status",
-  model_type = "rf",
-  tau = 1.25,
+  model_type = "cart",
+  tau = 0.3,
   trace = FALSE
 )
 
