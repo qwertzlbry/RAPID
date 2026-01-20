@@ -1,0 +1,362 @@
+\begin{thebibliography}{43}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Alfons et~al.(2011)Alfons, Kraft, Templ, and
+  Filzmoser]{Alfons_2011_EUSILC}
+Andreas Alfons, Stefan Kraft, Matthias Templ, and Peter Filzmoser.
+\newblock Simulation of close-to-reality population data for household surveys
+  with application to {EU-SILC}.
+\newblock \emph{Statistical Methods \& Applications}, 20\penalty0 (3):\penalty0
+  383--407, 2011.
+\newblock \doi{10.1007/s10260-011-0163-2}.
+
+\bibitem[Barrientos et~al.(2018)Barrientos, Bolton, Balmat, Reiter,
+  de~Figueiredo, Machanavajjhala, Chen, Kneifel, and DeLong]{barrientos18}
+Andr{\'e}s~F. Barrientos, Alexander Bolton, Tom Balmat, Jerome~P. Reiter,
+  John~M. de~Figueiredo, Ashwin Machanavajjhala, Yan Chen, Charley Kneifel, and
+  Mark DeLong.
+\newblock {Providing access to confidential research data through synthesis and
+  verification: An application to data on employees of the U.S. federal
+  government}.
+\newblock \emph{The Annals of Applied Statistics}, 12\penalty0 (2):\penalty0
+  1124 -- 1156, 2018.
+\newblock \doi{10.1214/18-AOAS1194}.
+
+\bibitem[Becker and Kohavi(1996)]{adult_2}
+Barry Becker and Ronny Kohavi.
+\newblock {Adult}.
+\newblock UCI Machine Learning Repository, 1996.
+\newblock {DOI}: https://doi.org/10.24432/C5XW20.
+
+\bibitem[Blanco-Justicia et~al.(2022)Blanco-Justicia, S{\'a}nchez,
+  Domingo-Ferrer, and Muralidhar]{BlancoJusticia2022}
+A.~Blanco-Justicia, D.~S{\'a}nchez, J.~Domingo-Ferrer, and K.~Muralidhar.
+\newblock A critical review on the use (and misuse) of differential privacy in
+  machine learning.
+\newblock \emph{ACM Computing Surveys}, 55\penalty0 (8):\penalty0 Article 160,
+  1--16, 2022.
+\newblock \doi{10.1145/3547139}.
+\newblock URL \url{https://doi.org/10.1145/3547139}.
+
+\bibitem[Chen et~al.(2025)Chen, He, Benesty, Khotilovich, Tang, Cho, Chen,
+  Mitchell, Cano, Zhou, Li, Xie, Lin, Geng, Li, Yuan, and Cortes]{xgboost}
+Tianqi Chen, Tong He, Michael Benesty, Vadim Khotilovich, Yuan Tang, Hyunsu
+  Cho, Kailong Chen, Rory Mitchell, Ignacio Cano, Tianyi Zhou, Mu~Li, Junyuan
+  Xie, Min Lin, Yifeng Geng, Yutian Li, Jiaming Yuan, and David Cortes.
+\newblock \emph{xgboost: Extreme Gradient Boosting}, 2025.
+\newblock URL \url{https://CRAN.R-project.org/package=xgboost}.
+\newblock R package version 3.1.2.1.
+
+\bibitem[Clopper and Pearson(1934)]{clopper1934use}
+Charles~J. Clopper and Egon~S. Pearson.
+\newblock The use of confidence or fiducial limits illustrated in the case of
+  the binomial.
+\newblock \emph{Biometrika}, 26\penalty0 (4):\penalty0 404--413, 1934.
+
+\bibitem[Dalenius(1977)]{Dalenius_1977_Methodology}
+Tore Dalenius.
+\newblock Towards a methodology for statistical disclosure control.
+\newblock \emph{Statistisk tidskrift}, 15:\penalty0 429--444, 1977.
+
+\bibitem[Domingo-Ferrer et~al.(2021)Domingo-Ferrer, S\'{a}nchez, and
+  Blanco-Justicia]{domingo21}
+Josep Domingo-Ferrer, David S\'{a}nchez, and Alberto Blanco-Justicia.
+\newblock The limits of differential privacy (and its misuse in data release
+  and machine learning).
+\newblock \emph{Commun. ACM}, 64\penalty0 (7):\penalty0 33–35, June 2021.
+\newblock ISSN 0001-0782.
+\newblock \doi{10.1145/3433638}.
+\newblock URL \url{https://doi.org/10.1145/3433638}.
+
+\bibitem[{Domingo-Ferrer} et~al.(2025{\natexlab{a}}){Domingo-Ferrer},
+  S{\'a}nchez, and Blanco-Justicia]{DomingoFerrer_2025_Privacy}
+Josep {Domingo-Ferrer}, David S{\'a}nchez, and Alberto Blanco-Justicia.
+\newblock Do {{Privacy Models Deliver}}?
+\newblock \emph{arXiv preprint}, 2025{\natexlab{a}}.
+\newblock URL \url{https://arxiv.org/abs/2510.11299}.
+\newblock Argues that DP incurs unacceptable utility loss for small privacy
+  budgets, while its guarantee becomes meaningless for large budgets.
+
+\bibitem[{Domingo-Ferrer} et~al.(2025{\natexlab{b}}){Domingo-Ferrer},
+  S{\'a}nchez, and Muralidhar]{DomingoFerrer_2025_Statistical}
+Josep {Domingo-Ferrer}, David S{\'a}nchez, and Krishnamurty Muralidhar.
+\newblock Statistical {{Disclosure Control}}: {{Moving Forward}}.
+\newblock \emph{Journal of Official Statistics}, 41\penalty0 (3):\penalty0
+  820--826, September 2025{\natexlab{b}}.
+\newblock ISSN 0282-423X, 2001-7367.
+\newblock \doi{10.1177/0282423X241312023}.
+
+\bibitem[Duncan and Lambert(1989)]{Duncan_1989_Risk}
+George Duncan and Diane Lambert.
+\newblock The {{Risk}} of {{Disclosure}} for {{Microdata}}.
+\newblock \emph{Journal of Business \& Economic Statistics}, 7\penalty0
+  (2):\penalty0 207--217, 1989.
+\newblock \doi{10.2307/1391438}.
+
+\bibitem[Duncan et~al.(2001)Duncan, Keller-McNulty, and Stokes]{Duncan01a}
+G.T. Duncan, S.A. Keller-McNulty, and S.L. Stokes.
+\newblock Disclosure risk vs. data utility: the r-u confidentiality map.
+\newblock Technical report la-ur-01-6428, Los Alamos National Laboratory, 2001.
+\newblock URL \url{http://www.heinz.cmu.edu/research/122full.pdf}.
+
+\bibitem[Dwork and Naor(2010)]{Dwork_2010_Difficulties}
+Cynthia Dwork and Moni Naor.
+\newblock On the difficulties of disclosure prevention in statistical databases
+  or the case for differential privacy.
+\newblock \emph{Journal of Privacy and Confidentiality}, 2\penalty0
+  (1):\penalty0 93--107, September 2010.
+\newblock ISSN 2575-8527.
+\newblock \doi{10.29012/jpc.v2i1.585}.
+
+\bibitem[El~Emam et~al.(2020)El~Emam, Mosquera, and Bass]{emam20}
+Khaled El~Emam, Laura Mosquera, and Jason Bass.
+\newblock Evaluating identity disclosure risk in fully synthetic health data:
+  Model development and validation.
+\newblock \emph{Journal of Medical Internet Research}, 22\penalty0
+  (11):\penalty0 e23139, 2020.
+\newblock \doi{10.2196/23139}.
+\newblock URL \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7704280/}.
+
+\bibitem[Francis and
+  Wagner(2025)]{francis2025betterattributeinferencevulnerability}
+Paul Francis and David Wagner.
+\newblock Towards better attribute inference vulnerability measures, 2025.
+\newblock URL \url{https://arxiv.org/abs/2507.01710}.
+
+\bibitem[Hittmeir et~al.(2020)Hittmeir, Mayer, and Ekelhart]{hittmeir20}
+Markus Hittmeir, Rudolf Mayer, and Andreas Ekelhart.
+\newblock A baseline for attribute disclosure risk in synthetic data.
+\newblock In \emph{Proceedings of the Tenth ACM Conference on Data and
+  Application Security and Privacy}, CODASPY '20, page 133–143, New York, NY,
+  USA, 2020. Association for Computing Machinery.
+\newblock ISBN 9781450371070.
+\newblock \doi{10.1145/3374664.3375722}.
+
+\bibitem[Hundepool et~al.(2012{\natexlab{a}})Hundepool, Domingo-Ferrer,
+  Franconi, Giessing, Lenz, Longhurst, Nordholt, Spicer, and
+  de~Wolf]{hundepool2012sdc}
+Anco Hundepool, Josep Domingo-Ferrer, Luisa Franconi, Sabine Giessing, Rainer
+  Lenz, Jim Longhurst, Eric Nordholt, Kevin Spicer, and Peter-Paul de~Wolf.
+\newblock \emph{Statistical Disclosure Control}.
+\newblock John Wiley \& Sons, Chichester, UK, 2012{\natexlab{a}}.
+\newblock Foundations; archive attacker model.
+
+\bibitem[Hundepool et~al.(2012{\natexlab{b}})Hundepool, Domingo-Ferrer,
+  Franconi, Giessing, Schulte~Nordholt, Spicer, and de~Wolf]{Hundepool2012}
+Anco Hundepool, Josep Domingo-Ferrer, Luisa Franconi, Sarah Giessing, Eric
+  Schulte~Nordholt, Keith Spicer, and Patrick de~Wolf.
+\newblock \emph{Statistical Disclosure Control}.
+\newblock Wiley, 2012{\natexlab{b}}.
+
+\bibitem[Kwatra and Torra(2024)]{kwatra24}
+Saloni Kwatra and Vicen{\c{c}} Torra.
+\newblock Empirical evaluation of synthetic data created by generative models
+  via attribute inference attack.
+\newblock In Felix Bieker, Silvia de~Conca, Nils Gruschka, Meiko Jensen, and
+  Ina Schiering, editors, \emph{Privacy and Identity Management. Sharing in a
+  Digital World}, pages 282--291, Cham, 2024. Springer Nature Switzerland.
+\newblock ISBN 978-3-031-57978-3.
+
+\bibitem[Latner et~al.(2025)Latner, Neunhoeffer, and
+  Drechsler]{Latner_2025_Buyer}
+Jonathan Latner, Marcel Neunhoeffer, and J{\"o}rg Drechsler.
+\newblock Buyer {{Beware}}: {{Understanding}} the trade-off between utility and
+  risk in {{CART}} based models using simulation data.
+\newblock In \emph{{{UNECE Expert Meeting}} on {{Statistical Data
+  Confidentiality}}}, pages 1--12, Barcelona, 2025. United Nations.
+\newblock ISBN 978-92-1-001079-5.
+\newblock \doi{10.18356/9789210010795}.
+
+\bibitem[Mekonnen(2024)]{mekonnen24}
+Kidist~Amde Mekonnen.
+\newblock Conditioning {GAN} without training dataset, 2024.
+\newblock URL \url{https://arxiv.org/abs/2405.20687}.
+
+\bibitem[Miletic and Sariyar(2024)]{miletic24}
+Marko Miletic and Murat Sariyar.
+\newblock Challenges of using synthetic data generation methods for tabular
+  microdata.
+\newblock \emph{Applied Sciences}, 14\penalty0 (14), 2024.
+\newblock ISSN 2076-3417.
+\newblock \doi{10.3390/app14145975}.
+\newblock URL \url{https://www.mdpi.com/2076-3417/14/14/5975}.
+
+\bibitem[M{\"u}hlhoff(2021)]{Muhlhoff_2021_Predictive}
+Rainer M{\"u}hlhoff.
+\newblock Predictive privacy: Towards an applied ethics of data analytics.
+\newblock \emph{Ethics and Information Technology}, 23\penalty0 (4):\penalty0
+  675--690, December 2021.
+\newblock ISSN 1388-1957, 1572-8439.
+\newblock \doi{10.1007/s10676-021-09606-x}.
+
+\bibitem[Muralidhar and Ruggles(2024)]{MuralidharRuggles2024}
+K.~Muralidhar and S.~Ruggles.
+\newblock Escalation of commitment: A case study of the united states census
+  bureau efforts to implement differential privacy for the 2020 decennial
+  census, 2024.
+\newblock URL \url{https://doi.org/10.48550/arXiv.2407.15957}.
+\newblock arXiv preprint.
+
+\bibitem[Muralidhar and Domingo-Ferrer(2023)]{muralidhar23}
+Krishnamurty Muralidhar and Josep Domingo-Ferrer.
+\newblock Database reconstruction is not so easy and is different from
+  reidentification.
+\newblock \emph{Journal of Official Statistics}, 39\penalty0 (3):\penalty0
+  381--398, 2023.
+\newblock \doi{10.2478/jos-2023-0017}.
+
+\bibitem[Nosek et~al.(2015)Nosek, Alter, Banks, Borsboom, Bowman, Breckler,
+  Buck, Chambers, Chin, Christensen, Contestabile, Dafoe, Eich, Freese,
+  Glennerster, Goroff, Green, Hesse, Humphreys, Ishiyama, Karlan, Kraut, Lupia,
+  Mabry, Madon, Malhotra, Mayo-Wilson, {McNutt}, Miguel, Levy~Paluck,
+  Simonsohn, Soderberg, Spellman, Turitto, {VandenBos}, Vazire, Wagenmakers,
+  Wilson, and Yarkoni]{2015_Nosek}
+B.~A. Nosek, G.~Alter, G.~C. Banks, D.~Borsboom, S.~D. Bowman, S.~J. Breckler,
+  S.~Buck, C.~D. Chambers, G.~Chin, G.~Christensen, M.~Contestabile, A.~Dafoe,
+  E.~Eich, J.~Freese, R.~Glennerster, D.~Goroff, D.~P. Green, B.~Hesse,
+  M.~Humphreys, J.~Ishiyama, D.~Karlan, A.~Kraut, A.~Lupia, P.~Mabry, T.~Madon,
+  N.~Malhotra, E.~Mayo-Wilson, M.~{McNutt}, E.~Miguel, E.~Levy~Paluck,
+  U.~Simonsohn, C.~Soderberg, B.~A. Spellman, J.~Turitto, G.~{VandenBos},
+  S.~Vazire, E.~J. Wagenmakers, R.~Wilson, and T.~Yarkoni.
+\newblock Promoting an open research culture.
+\newblock \emph{Science}, 348\penalty0 (6242):\penalty0 1422--1425, 2015.
+\newblock ISSN 0036-8075.
+\newblock \doi{10.1126/science.aab2374}.
+\newblock URL \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4550299/}.
+
+\bibitem[Nowok et~al.(2016)Nowok, Raab, and Dibben]{Nowok_2016_Synthpop}
+Beata Nowok, G.~M. Raab, and Chris Dibben.
+\newblock synthpop: Bespoke creation of synthetic data in r.
+\newblock 74\penalty0 (11):\penalty0 1--26, 2016.
+\newblock ISSN 1548-7660.
+\newblock \doi{10.18637/jss.v074.i11}.
+\newblock URL \url{https://doi.org/10.18637/jss.v074.i11}.
+
+\bibitem[Pilgram et~al.(2025)Pilgram, Dankar, Drechsler, Elliot,
+  Domingo-Ferrer, Francis, Kantarcioglu, Kong, Malin, Muralidhar, Myles,
+  Prasser, Raisaro, Yan, and {El Emam}]{pilgram25}
+Lisa Pilgram, Fida~Kamal Dankar, Jörg Drechsler, Mark Elliot, Josep
+  Domingo-Ferrer, Paul Francis, Murat Kantarcioglu, Linglong Kong, Bradley
+  Malin, Krishnamurty Muralidhar, Puja Myles, Fabian Prasser, Jean~Louis
+  Raisaro, Chao Yan, and Khaled {El Emam}.
+\newblock A consensus privacy metrics framework for synthetic data.
+\newblock \emph{Patterns}, page 101320, 2025.
+\newblock ISSN 2666-3899.
+\newblock \doi{https://doi.org/10.1016/j.patter.2025.101320}.
+\newblock URL
+  \url{https://www.sciencedirect.com/science/article/pii/S2666389925001680}.
+
+\bibitem[Platzer and Reutterer(2021)]{PlatzerReutterer2021Holdout}
+M.~Platzer and T.~Reutterer.
+\newblock Holdout-based empirical assessment of mixed-type synthetic data.
+\newblock \emph{Frontiers in Big Data}, 4:\penalty0 679939, 2021.
+\newblock \doi{10.3389/fdata.2021.679939}.
+\newblock URL \url{https://doi.org/10.3389/fdata.2021.679939}.
+
+\bibitem[Raab et~al.(2025)Raab, Nowok, and Dibben]{Raab_2025_Practical}
+G.~M. Raab, Beata Nowok, and Chris Dibben.
+\newblock Practical privacy metrics for synthetic data, 2025.
+\newblock URL \url{http://arxiv.org/abs/2406.16826}.
+\newblock Pages: 1-23.
+
+\bibitem[Reiter et~al.(2014)Reiter, Wang, and Zhang]{Reiter_2014_Bayesiana}
+Jerome~P. Reiter, Quanli Wang, and Biyuan Zhang.
+\newblock Bayesian {{Estimation}} of {{Disclosure Risks}} for {{Multiply
+  Imputed}}, {{Synthetic Data}}.
+\newblock \emph{Journal of Privacy and Confidentiality}, 6\penalty0 (1), June
+  2014.
+\newblock ISSN 2575-8527.
+\newblock \doi{10.29012/jpc.v6i1.635}.
+
+\bibitem[Rubin(1993)]{Rubin93}
+D.B. Rubin.
+\newblock Discussion of statistical disclosure limitation.
+\newblock \emph{Journal of Official Statistics}, 9\penalty0 (2):\penalty0
+  461--468, 1993.
+
+\bibitem[Stadler et~al.(2020)Stadler, Oprisanu, and Troncoso]{Stadler20c}
+Theresa Stadler, Bristena Oprisanu, and Carmela Troncoso.
+\newblock Synthetic data - anonymisation groundhog day.
+\newblock In \emph{USENIX Security Symposium}, 2020.
+\newblock URL \url{https://api.semanticscholar.org/CorpusID:235391080}.
+
+\bibitem[{Swiss National Science Fund (SNSF)}(2024)]{SNF_ORD2024}
+{Swiss National Science Fund (SNSF)}.
+\newblock {Open Research Data: ein erster Blick auf die aktuelle Praxis}.
+\newblock \url{https://data.snf.ch/stories/open-research-data-2023-de.html},
+  2024.
+\newblock accessed October 15, 2025.
+
+\bibitem[Taub et~al.(2018)Taub, Elliot, Pampaka, and Smith]{taub18}
+Jennifer Taub, Mark Elliot, Maria Pampaka, and Duncan Smith.
+\newblock Differential correct attribution probability for synthetic data: An
+  exploration.
+\newblock In Josep Domingo-Ferrer and Francisco Montes, editors, \emph{Privacy
+  in Statistical Databases}, pages 122--137, Cham, 2018. Springer International
+  Publishing.
+\newblock ISBN 978-3-319-99771-1.
+
+\bibitem[Templ(2014)]{templ14risk}
+M.~Templ.
+\newblock Providing data with high utility and no disclosure risk for the
+  public and researchers: An evaluation by advanced statistical disclosure
+  risk.
+\newblock \emph{Austrian Journal of Statistics}, 43\penalty0 (4):\penalty0
+  247–254, 2014.
+\newblock \doi{10.17713/ajs.v43i4.43}.
+
+\bibitem[Templ et~al.(2017)Templ, Meindl, Kowarik, and Dupriez]{simPop}
+M.~Templ, B.~Meindl, A.~Kowarik, and O.~Dupriez.
+\newblock Simulation of synthetic complex data: The {R} package sim{P}op.
+\newblock \emph{Journal of Statistical Software}, 79\penalty0 (10):\penalty0
+  1--38, 2017.
+\newblock \doi{10.18637/jss.v079.i10}.
+\newblock URL \url{http://dx.doi.org/10.18637/jss.v079.i10}.
+
+\bibitem[Thees et~al.(2025)Thees, M\"uller, and Templ]{Thees25pca}
+O.~Thees, R.~M\"uller, and M.~Templ.
+\newblock Beyond the trade-off curve: Multivariate and advanced risk-utility
+  maps for evaluating anonymized and synthetic data.
+\newblock \emph{Arxiv}, 2025.
+
+\bibitem[Thees et~al.(2024)Thees, Nov{\'a}k, and Templ]{thees24}
+Oscar Thees, Ji{\v{r}}{\'i} Nov{\'a}k, and Matthias Templ.
+\newblock Evaluation of synthetic data generators on complex tabular data.
+\newblock In Josep Domingo-Ferrer and Melek {\"O}nen, editors, \emph{Privacy in
+  Statistical Databases}, pages 194--209, Cham, 2024. Springer Nature
+  Switzerland.
+
+\bibitem[Ward et~al.(2025)Ward, Yang, Wang, and Cheng]{ward25}
+J.~Ward, Y.~Yang, C.~Wang, and G.~Cheng.
+\newblock Ensembling membership inference attacks against tabular generative
+  models, 2025.
+\newblock URL \url{https://doi.org/10.1145/3733799.3762977}.
+
+\bibitem[Willenborg and de~Waal(2001)]{Willenborg_2001_Elements}
+Leon Willenborg and Ton de~Waal.
+\newblock \emph{Elements of statistical disclosure control}, volume 155 of
+  \emph{Lecture Notes in Statistics}.
+\newblock Springer, 1 edition, 2001.
+\newblock ISBN 978-1-4613-0121-9.
+\newblock \doi{10.1007/978-1-4613-0121-9}.
+\newblock URL \url{http://link.springer.com/10.1007/978-1-4613-0121-9}.
+
+\bibitem[Wilson(1927)]{wilson1927probable}
+Edwin~B. Wilson.
+\newblock Probable inference, the law of succession, and statistical inference.
+\newblock \emph{Journal of the American Statistical Association}, 22\penalty0
+  (158):\penalty0 209--212, 1927.
+
+\bibitem[Wright and Ziegler(2017)]{ranger}
+Marvin~N. Wright and Andreas Ziegler.
+\newblock ranger: A fast implementation of random forests for high dimensional
+  data in {C++} and {R}.
+\newblock \emph{Journal of Statistical Software}, 77\penalty0 (1):\penalty0
+  1--17, 2017.
+\newblock \doi{10.18637/jss.v077.i01}.
+
+\end{thebibliography}
