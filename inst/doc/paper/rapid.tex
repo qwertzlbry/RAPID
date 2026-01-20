@@ -105,7 +105,7 @@ Statistical data anonymization increasingly relies on fully synthetic microdata,
 % Open research data (ORD) are increasingly recognized as essential for scientific transparency and reproducibility \citep{2015_Nosek}. Nevertheless, the proportion of shared datasets remains low. For instance, only 23\% of projects funded by the Swiss National Science Foundation (SNSF) provide ORD \citep{SNF_ORD2024}. Legal constraints, such as data protection laws and usage restrictions, often impede data sharing. In addition, many researchers and data custodians are unaware of existing methods for data anonymization or synthetization.
 % % In fully synthetic datasets, the right to be forgotten becomes irrelevant, as no individual’s real data are included.
 
-% The notion that synthetic data enable open science without compromising privacy is misleading. Even in synthetic datasets, adversaries may exploit statistical dependencies to infer sensitive information, highlighting the need for rigorous risk assessment \citep{Stadler20c}. Therefore, a critical challenge remains: how to rigorously and meaningfully quantify inference disclosure risk for synthetic data.
+% The notion that synthetic data enable open science without compromising privacy is misleading. Even in synthetic datasets, adversaries may exploit statistical dependencies to infer sensitive information, highlighting the need for rigorous risk assessment \citep{Stadler20c}. Therefore, a critical challenge remains: how to rigorously and meaningfully quantify attribute inference risk for synthetic data.
 
 Open research data (ORD) are increasingly recognized as essential for scientific transparency and reproducibility \citep{2015_Nosek}. Yet the proportion of shared datasets remains low\textcolor{blue}{:} for instance, only 23\% of projects funded by the Swiss National Science Foundation currently provide ORD \textcolor{blue}{\citep{SNF_ORD2024}}. Legal constraints and contractual usage restrictions often hinder the release of microdata, \textcolor{blue}{while technical barriers to anonymization remain substantial for many research teams.}
 
@@ -159,7 +159,7 @@ approach quantifies risk regardless of how the data were produced.}
 
 \subsection{Disclosure risk measures}
 
-Classical SDC distinguishes (i) identity disclosure (i.e., linking a record to a specific individual); (ii) attribute disclosure (i.e., correctly learning sensitive values); and (iii) membership disclosure (i.e., learning whether an individual's data is part of a dataset) \citep{hundepool2012sdc}.
+Classical SDC distinguishes (i) identity disclosure (i.e., linking a record to a specific individual); (ii) attribute disclosure (i.e., correctly learning sensitive values); and (iii) membership disclosure (i.e., learning whether an individual's data is part of a dataset) \citep{Hundepool2012}.
 
 For fully synthetic microdata, identity disclosure risk is typically low \citep{templ14risk,emam20}, as synthetic records are not literal representations of individuals. As a result, most attention shifts toward analytical validity and attribute disclosure risk.
 
@@ -467,7 +467,7 @@ e_i = \frac{|y_i - \hat{y}_i|}{|y_i|} \times 100
 \text{RAPID}^{\text{cont}}(\varepsilon) = \frac{1}{n}\sum_{i=1}^{n} \mathbb{I}(e_i < \varepsilon)
 \]
 representing the proportion of records where predictions fall within the specified error tolerance.
-\textcolor{blue}{Note that while aggregate error metrics (MAE, RMSE) are insufficient for disclosure assessment---as they do not identify which records are at risk---they can inform the choice of $\varepsilon$ by characterizing typical prediction accuracy.}
+\textcolor{blue}{Note that while aggregate error metrics (MAE, RMSE) are insufficient for disclosure assessment -- as they do not identify which records are at risk -- they can inform the choice of $\varepsilon$ by characterizing typical prediction accuracy.}
 
 \subsection{Computation}
 
@@ -633,7 +633,7 @@ This indicates that for one-third of individuals, the \textcolor{blue}{attacker'
 \subsection{Software and defaults}\label{subsec:software}
 
 The proposed risk measure is implemented in \textsf{R}.
-A dedicated package, \texttt{RAPID}, accompanies this paper and is \textcolor{blue}{publicly available on GitHub}.\footnote{\textcolor{blue}{\url{https://github.com/XXX/RAPID}}} \textcolor{blue}{The reference implementation builds on well-established libraries: \texttt{ranger} \citep{ranger} for random forests, and optionally \texttt{xgboost} \citep{xgboost} for gradient boosting. The package provides functions for computing RAPID for both categorical and continuous sensitive attributes, including baseline normalization, threshold calibration, and bootstrap-based uncertainty quantification.}
+A dedicated package, \textcolor{blue}{\texttt{riskutility}}, accompanies this paper and is \textcolor{blue}{publicly available on GitHub}.\footnote{\textcolor{blue}{\url{https://github.com/XXX/riskutility}}} \textcolor{blue}{The reference implementation builds on well-established libraries: \texttt{ranger} \citep{ranger} for random forests, and optionally \texttt{xgboost} \citep{xgboost} for gradient boosting. The package provides functions for computing RAPID for both categorical and continuous sensitive attributes, including baseline normalization, threshold calibration, and bootstrap-based uncertainty quantification.}
 
 % Future: Python and Julia implementations
 % In \textsf{Python}, the package would integrate with \texttt{scikit-learn} for model training and prediction.
@@ -675,7 +675,7 @@ We consider \textcolor{blue}{a} CART-based tabular synthesizer (as implemented i
 We evaluate an attacker suite \(\mathcal{S}=\{\)RF, GBM, \(\ell_1\)-logistic\(\}\), trained on each synthetic replicate and scored on the real covariates \(\mathbf{X}\).
 
 \paragraph{Metrics and reporting.}
-\textcolor{blue}{We compute \(\mathrm{RAPID}^{\text{cat}}(\tau)\) across a range of threshold values and visualize the results as a threshold curve (Figure~\ref{fig:rcir-curve}). For each synthetic replicate, we average RAPID across the \(M=5\) replicates and report 95\% bootstrap confidence intervals. We additionally stratify RAPID by true class \(y\) to reveal whether disclosure risk differs across outcome categories---for example, whether high-income individuals are more identifiable than low-income individuals.}
+\textcolor{blue}{We compute \(\mathrm{RAPID}^{\text{cat}}(\tau)\) across a range of threshold values and visualize the results as a threshold curve (Figure~\ref{fig:rcir-curve}). For each synthetic replicate, we average RAPID across the \(M=5\) replicates and report 95\% bootstrap confidence intervals. We additionally stratify RAPID by true class \(y\) to reveal whether disclosure risk differs across outcome categories -- for example, whether high-income individuals are more identifiable than low-income individuals.}
 
 
 
@@ -695,9 +695,14 @@ We evaluate an attacker suite \(\mathcal{S}=\{\)RF, GBM, \(\ell_1\)-logistic\(\}
 % It needs to be rewritten using the new normalized gain formulation (τ ∈ [0,1], default 0.3).
 % The tables and figures also need recalculation.
 
-\textcolor{blue}{To assess inferential disclosure risk, we applied RAPID to the UCI Adult dataset using \texttt{income} as the sensitive attribute. Five synthetic datasets were generated via the CART synthesizer (\texttt{synthpop} package). For each replicate, we trained a random forest attacker model on the synthetic data to infer the sensitive attribute from quasi-identifiers, then evaluated the model's predictions on the original dataset.}
+\textcolor{blue}{To assess attribute inference risk, we applied RAPID to the UCI Adult dataset using \texttt{income} as the sensitive attribute. Five synthetic datasets were generated via the CART synthesizer (\texttt{synthpop} package). For each replicate, we trained a random forest attacker model on the synthetic data to infer the sensitive attribute from quasi-identifiers, then evaluated the model's predictions on the original dataset.}
 
-\textcolor{blue}{We computed RAPID across a range of threshold values $\tau \in [0, 1]$ to examine how disclosure risk varies with the stringency of the threshold. To quantify uncertainty, we performed non-parametric bootstrapping with $R = 500$ resamples from the original dataset, providing robust percentile-based confidence intervals.}
+\textcolor{blue}{We computed RAPID across a range of threshold values $\tau \in [0, 1]$ to
+examine how disclosure risk varies with the stringency of the threshold.
+To quantify uncertainty, we performed non-parametric bootstrapping with $R = 500$
+resamples from the original dataset, providing robust percentile-based confidence intervals.
+The RAPID score was calculated based on random forest predictions,
+reflecting a strong attacker model.\textcolor{red}{Increase R in real-data-applicationR-new-rapid.R}}
 
 % Old content commented out - needs recalculation with new normalized gain thresholds
 % \begin{table}[!htp]
@@ -713,9 +718,29 @@ to calibrate disclosure risk according to their privacy requirements.}
 \begin{figure}[!htp]
 \centering
 \includegraphics[width=0.75\textwidth]{rapid_curve_quantile.pdf}
-\caption{\textcolor{red}{rerun with finer-grained tau values, increaded bootstraps and rf instead of cart - in real-data-application-new-rapid.R}\textcolor{blue}{RAPID as a function of the normalized gain threshold $\tau$ for the UCI Adult dataset. The curve demonstrates how disclosure risk decreases as stricter thresholds are imposed.}}
+\caption{\textcolor{red}{rerun with finer-grained tau values, increaded bootstraps - in real-data-application-new-rapid.R}\textcolor{blue}{RAPID as a function of the normalized gain threshold $\tau$ for the UCI Adult dataset. The curve demonstrates how disclosure risk decreases as stricter thresholds are imposed.}}
 \label{fig:rcir-curve}
 \end{figure}
+
+\textcolor{blue}{Table~\ref{tab:rapid-adult} reports RAPID values at the default threshold $\tau = 0.3$ for each of the five synthetic replicates. The narrow confidence intervals, obtained via non-parametric bootstrapping with $R = 500$ resamples, indicate stable risk estimates across replicates. Approximately 72\% of records exhibit normalized gains exceeding the threshold, suggesting substantial attribute-inference risk for this dataset under the CART synthesizer.}
+
+\begin{table}[!htp]
+\centering
+\caption{\textcolor{blue}{RAPID estimates at default threshold $\tau = 0.3$ for the UCI Adult dataset. Each row corresponds to one synthetic replicate generated via CART. Confidence intervals (95\%) obtained via non-parametric bootstrap ($R = 500$).}}
+\label{tab:rapid-adult}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{ccccc}
+\toprule
+\textcolor{blue}{Replicate} & \textcolor{blue}{RAPID} & \textcolor{blue}{95\% CI (Lower)} & \textcolor{blue}{95\% CI (Upper)} & \textcolor{blue}{$n$ at risk} \\
+\midrule
+\textcolor{blue}{1} & \textcolor{blue}{0.719} & \textcolor{blue}{0.716} & \textcolor{blue}{0.721} & \textcolor{blue}{23,414} \\
+\textcolor{blue}{2} & \textcolor{blue}{0.720} & \textcolor{blue}{0.717} & \textcolor{blue}{0.722} & \textcolor{blue}{23,438} \\
+\textcolor{blue}{3} & \textcolor{blue}{0.721} & \textcolor{blue}{0.716} & \textcolor{blue}{0.724} & \textcolor{blue}{23,472} \\
+\textcolor{blue}{4} & \textcolor{blue}{0.716} & \textcolor{blue}{0.713} & \textcolor{blue}{0.722} & \textcolor{blue}{23,327} \\
+\textcolor{blue}{5} & \textcolor{blue}{0.728} & \textcolor{blue}{0.723} & \textcolor{blue}{0.732} & \textcolor{blue}{23,697} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \section{Simulation study}
 \label{sec:simulations}
@@ -742,7 +767,7 @@ Appendix~\ref{app:datagen}.
 
 \subsection{Data Generation Process}
 
-We simulate $n$ independent records with six variables: gender ($G$), age ($A$), education ($E$), income ($I$), health score ($H$), and disease status ($D$). The design encodes realistic dependencies through a latent socioeconomic
+\textcolor{blue}{We simulate $n = 1{,}000$ independent records with six variables: gender ($G$), age ($A$), education ($E$), income ($I$), health score ($H$), and disease status ($D$), where $D$ serves as the sensitive attribute.} The design encodes realistic dependencies through a latent socioeconomic
 status (SES) variable, with dependency strength controlled by parameter $\kappa \geq 0$.
 
 Signal and noise weights are derived from $\kappa$ as:
@@ -751,23 +776,23 @@ w_{\text{signal}} = \sqrt{\frac{\kappa}{1+\kappa}}, \quad
 w_{\text{noise}} = \sqrt{\frac{1}{1+\kappa}}.
 \]
 
-At $\kappa=0$, relationships are weak ($w_{\text{signal}} \approx 0$); at $\kappa \gg 1$, dependencies approach deterministic strength ($w_{\text{signal}} \to 1$). Age follows a truncated normal; education is ordinal derived from a latent variable; income is log-linear; health score uses sigmoid transformation; disease status is generated via
+At $\kappa=0$, relationships are \textcolor{blue}{purely noise-driven} ($w_{\text{signal}} = 0$); at $\kappa \gg 1$, dependencies approach deterministic strength ($w_{\text{signal}} \to 1$). Age follows a truncated normal; education is ordinal derived from a latent variable; income is log-linear; health score uses sigmoid transformation; disease status is generated via
 multinomial logit with $\kappa$-scaled coefficients; gender is binary with mild SES dependency. Complete mathematical specifications appear in Appendix~\ref{app:datagen}.
 
 \subsection{Dependency Strength}
-We varied dependency parameter $\kappa$ from 0 to 100 (101 values, 10 replications each) to investigate how attribute-inference risk scales with quasi-identifier--sensitive attribute relationship strength. Subplot a) in Figure \ref{fig:sim1_2} shows a S-shaped trajectory demonstrates that risk escalates rapidly when transitioning from weak to moderate dependencies, then saturates as relationships approach deterministic strength. Saturation near 0.97 rather than 1.0 reflects inherent noise from the CART synthesizer's sampling. Attacker accuracy follows a similar trajectory (0.70 to 0.98), demonstrating that RAPID reliably reflects actual prediction performance: datasets with high RAPID face genuinely elevated disclosure risk.
+We varied dependency parameter $\kappa$ from 0 to 100 (101 values, 10 replications each) to investigate how attribute-inference risk scales with quasi-identifier--sensitive attribute relationship strength. Subplot a) in Figure \ref{fig:sim1_2} shows \textcolor{blue}{an} S-shaped trajectory\textcolor{blue}{:} risk escalates rapidly when transitioning from weak to moderate dependencies, then saturates as relationships approach deterministic strength. Saturation near 0.97 rather than 1.0 reflects inherent noise from the CART synthesizer's sampling. Attacker accuracy follows a similar trajectory (0.70 to 0.98), demonstrating that RAPID reliably reflects actual prediction performance: datasets with high RAPID face genuinely elevated disclosure risk.
 
 Having established that risk scales with dependency strength, we next investigate how the threshold parameter $\tau$ interacts with this dependency structure. Simulation 2 addresses this challenge by examining threshold sensitivity across the full dependency spectrum.
 
 \subsection{Threshold Sensitivity}
-We examined how confidence threshold $\tau$ affects RAPID across five dependency levels ($\kappa \in \{0, 5, 10, 20, 50\}$), varying $\tau$ from 0.05 to 0.95 in 0.05 increments (10 replications per combination). Subplot b) in Figure \ref{fig:sim1_2} reveals a qualitative shift in curve geometry: at low dependency ($\kappa=0$, gray), RAPID decreases convexly, dropping rapidly from 0.50 to near-zero by $\tau=0.60$, indicating diffuse attacker confidence. At high dependency ($\kappa \geq 5$, blue/red), curves become concave, remaining elevated
+We examined how \textcolor{blue}{the normalized gain threshold} $\tau$ affects RAPID across five dependency levels ($\kappa \in \{0, 5, 10, 20, 50\}$), varying $\tau$ from 0.05 to 0.95 in 0.05 increments (10 replications per combination). Subplot b) in Figure \ref{fig:sim1_2} reveals a qualitative shift in curve geometry: at low dependency ($\kappa=0$, gray), RAPID decreases convexly, dropping rapidly from 0.50 to near-zero by $\tau=0.60$, indicating diffuse attacker confidence. At high dependency ($\kappa \geq 5$, blue/red), curves become concave, remaining elevated
 ($>0.85$) until stringent thresholds ($\tau > 0.70$), reflecting concentrated confidence distributions near certainty. This convex-to-concave transition marks a shift from weak to strong adversarial inference capability. Practically, data curators should choose higher thresholds ($\tau \geq 0.70$) for strongly dependent data to avoid flagging nearly all records, while lower thresholds ($\tau \approx 0.30$--0.40) suffice for weakly dependent data
 where they effectively separate high-confidence from baseline predictions.
 
 \begin{figure}[!htp]
     \centering
     \includegraphics[width=1\linewidth]{plot_sim1_and_sim2_combined.pdf}
-    \caption{Impact of dependency strength and confidence threshold on RAPID:\\
+    \caption{Impact of dependency strength and \textcolor{blue}{normalized gain threshold} on RAPID:\\
     \\
 (a) RAPID and attacker accuracy increase monotonically with dependency
 strength $\kappa$. RAPID rises from 0.25 at $\kappa=0$ to 0.97 at $\kappa=100$,
@@ -775,7 +800,7 @@ with steepest increases at low $\kappa$ values. This
 S-shaped growth demonstrates that attribute-inference risk escalates rapidly
 when transitioning from weak to moderate quasi-identifier--sensitive attribute
 relationships, then saturates as dependencies approach deterministic levels. \\
-(b) RAPID vs confidence threshold $\tau$ for varying $\kappa$. At low
+(b) RAPID vs \textcolor{blue}{normalized gain threshold} $\tau$ for varying $\kappa$. At low
 dependency ($\kappa=0$, gray), the curve is convex, reflecting diffuse
 attacker confidence where most records are filtered out at moderate thresholds.
 At high dependency ($\kappa \geq 5$, blue/red), curves become concave, remaining
@@ -797,8 +822,8 @@ Figure~\ref{fig:sim3} displays coefficient distributions relative to reference c
 \begin{figure}[!htp]
     \centering
     \includegraphics[width=1\linewidth]{plot_sim3_coefficients_minimal.pdf}
-    \caption{Attribution analysis of re-identification risk by quasi-identifier. Boxplots display regression coefficients ($\beta$) from logistic models predicting
-at-risk status across 50 simulations ($\kappa$=10, $\tau$=0.3, n=1000). White diamonds = means; red points = reference categories ($\beta$=0). Positive $\beta$ indicates elevated re-identification risk.}
+    \caption{\textcolor{red}{OSCAR fuegt neuen Plot (mit Interaktionen) ein und passt Text an.}\textcolor{blue}{Attribution analysis of attribute-inference risk by quasi-identifier.} Boxplots display regression coefficients ($\beta$) from logistic models predicting
+at-risk status across 50 simulations ($\kappa$=10, $\tau$=0.3, n=1000). White diamonds = means; red points = reference categories ($\beta$=0). Positive $\beta$ indicates elevated \textcolor{blue}{attribute-inference} risk.}
     \label{fig:sim3}
 \end{figure}
 
@@ -810,7 +835,7 @@ To assess whether RAPID is sensitive to attacker model choice, we compared three
 
 \begin{table}[!htp]
 \centering
-\caption{Attacker Model Comparison}
+\caption{\textcolor{blue}{Attacker model comparison: RAPID values and prediction accuracy across three tree-based models ($\kappa=10$, $\tau=0.3$, 50 replications, $n=1000$). The narrow range of RAPID values (0.864--0.876) demonstrates robustness to attacker model choice.}}
 \label{tab:sim4}
 \renewcommand{\arraystretch}{1.3}
 \begin{tabular}{lcccc}
@@ -829,18 +854,16 @@ Random Forest & 0.864 & 0.010 & 0.891 & 0.010 \\
 \subsection{Computational cost}\label{subsec:cost}
 Let \(T_{\text{train}}\) be the time to fit \(\mathcal{M}\) on \(\mathbf{Z}^{(s)}\) and \(T_{\text{score}}\) the time to score \(\mathbf{X}\). Per replicate, the dominant cost is \(T_{\text{train}}\). Overall complexity is \(O\!\big(M\cdot |\mathcal{S}|\cdot T_{\text{train}}\big)\). Bootstrap intervals add a multiplicative factor of \(B\) light-weight recomputations (reusing \(\hat{\Theta}^{(s)}\), only resampling rows of \(\mathbf{Z}\)), so walltime scales roughly as \(O\!\big(M\cdot |\mathcal{S}|\cdot T_{\text{train}} + B\cdot n\big)\).
 
-\subsection{Reproducible \textsf{R} sketch}\label{subsec:r-code}
+\subsection{\textcolor{blue}{Usage example}}\label{subsec:r-code}
 Below we give a minimal \textsf{R} sketch for the categorical case; continuous \(y\) differs only in the score definition.
 
-RAPID is implemented as an open-source R package (\texttt{rapidsynthpop}) with
-straightforward workflows integrating with the widely-used \texttt{synthpop}
-package for generating synthetic data. A typical evaluation requires only original
-data, synthetic data, and specification of quasi-identifiers and the sensitive
-attribute:
+RAPID is implemented as an open-source R package (\textcolor{blue}{\texttt{riskutility}})\textcolor{blue}{. A typical evaluation requires only original
+data, released data, and specification of quasi-identifiers and the sensitive
+attribute:}
 
 \begin{small}
 \begin{verbatim}
-library(rapidsynthpop)
+library(riskutility)
 rapid_result <- rapid(
   original_data = data_orig,
   synthetic_data = data_syn,
@@ -852,148 +875,79 @@ rapid_result <- rapid(
 \end{verbatim}
 \end{small}
 
-The function returns sample-level risk rates and per-record risk scores. For categorical sensitive attributes, the primary output is the confidence rate: the proportion of records for which the attacker's predicted probability (relative to the model-estimated baseline) exceeds threshold $\tau$. For continuous attributes, RAPID reports the roportion of records where relative prediction error falls below a specified tolerance.
+The function returns sample-level risk rates and per-record risk scores. For categorical sensitive attributes, the primary output is the \textcolor{blue}{proportion of records at risk}: \textcolor{blue}{records} for which the \textcolor{blue}{normalized gain} exceeds threshold $\tau$. For continuous attributes, RAPID reports the \textcolor{blue}{proportion} of records where relative prediction error falls below a specified tolerance.
 
+\textcolor{red}{Oscar, du meintest, dass du die Holdout Evaluation
+auch implementiert hast. Ich sehe keinen Funktionsparameter in rapid dazu. Das ist jetzt ziemlich entscheidend,
+wie wir damit umgehen. Wenn implementiert, sollen wir im Paper und der Diskussion darueber sprechen.
+Jetzt wird in der Diskussion bereits darueber gesprochen, in den vorigen Sections geht es aber komplett unter.
+}
 
 \section{Discussion}
 
-% TODO: This section is work in progress and needs restructuring
-\color{red}
+\textcolor{blue}{RAPID provides a model-based, attacker-realistic approach to assessing attribute inference risk in released data. In this section, we discuss how RAPID relates to existing disclosure risk measures, address limitations, and offer practical guidance.}
 
-Table-based measures like DiSCO \citep{Raab_2025_Practical} assess attribute disclosure by flagging records as disclosive when synthetic data imply a unique target value for a given quasi-identifier combination $q$—that is, when the synthetic column proportion $p_{stq}=1$ within that $q$-group. DiSCO then counts the number of original records in those $q$-groups with that target $t$ (``Correct Original''). Formally,
-$$
-\text{DiSCO} = 100 \times \sum_{q}\sum_{t} \frac{d_{tq} \mid p_{stq}=1}{N_d},
-$$
-where $d_{tq}$ denotes original records in quasi-identifier group $q$ with target $t$, and $N_d$ is the total number of original records. For example, if every synthetic record for ``60-year-old male smoker from region A'' shows depression ($p_{\text{depression}|q}=1$), and five original records match these quasi-identifiers with depression, those five records contribute to DiSCO. Related measures include DCAP and TCAP, which use different denominators to express conditional disclosure probabilities.
+\subsection{\textcolor{blue}{Comparison with table-based measures}}
 
-This approach offers transparency and integrates naturally with classical Statistical Disclosure Control concepts of key variables and within-group homogeneity. However, it has several limitations for modern synthetic data assessment.
+\textcolor{blue}{Table-based measures such as DiSCO \citep{Raab_2025_Practical}, DCAP, and TCAP \citep{taub18} assess attribute disclosure by examining contingency tables formed from quasi-identifier combinations. DiSCO, for instance, flags records as disclosive when all synthetic records sharing a quasi-identifier combination have the same sensitive attribute value. While transparent and aligned with classical Statistical Disclosure Control concepts, these approaches have several limitations that RAPID addresses:}
 
-First, DiSCO requires discretizing continuous sensitive attributes and quasi-identifiers into categorical bins to construct contingency tables, making results sensitive to these binning choices. Coarse bins (e.g., three broad age groups) yield larger equivalence classes (i.e., groups of records sharing the same quasi-identifier combination) that are less likely to exhibit perfect homogeneity ($p_{stq}=1$), potentially underestimating risk. Fine bins (e.g., five-year age intervals) create smaller, more homogeneous equivalence classes but also sparser ones with fewer observations. There is no objective criterion for optimal binning, introducing subjectivity into risk assessment.
-
-Second, DiSCO's deterministic threshold ($p_{stq}=1$) is strict: it only flags risk when synthetic data exhibit perfect within-class homogeneity for the sensitive attribute. This misses inferential vulnerabilities from strong but non-deterministic patterns that adversaries using machine learning could exploit. Consider an equivalence class where 85\% of synthetic records show depression and 15\% show anxiety. An adversary training a predictive model on the synthetic data would learn to predict depression for this quasi-identifier pattern with high
-confidence (0.85), as the model captures the strong probabilistic association. This poses genuine disclosure risk for original records with these quasi-identifiers who have depression. Yet because $p_{stq} \neq 1$, DiSCO does not flag these records as at-risk.
-More generally, flexible models can exploit complex interactions that don't yield perfect homogeneity in individual equivalence classes. RAPID captures these vulnerabilities by training flexible models that mirror realistic adversarial capabilities and flagging records where model confidence substantially exceeds baseline, regardless of whether synthetic data exhibit $p_{stq}=1$.
-
-Third, while DiSCO identifies which original records are at-risk, it provides only binary classification (disclosive or not) without quantifying the strength of adversarial inference. All records with $p_{stq}=1$ are treated identically regardless of the broader context: whether the quasi-identifier pattern is common or rare in the data, whether the sensitive attribute has high or low marginal prevalence, or whether alternative quasi-identifier combinations would yield similar predictions. RAPID produces individual-level confidence scores that vary continuously, enabling risk stratification: curators can identify not just which records are at elevated risk, but which face the highest vulnerability, facilitating targeted disclosure control and subgroup-specific diagnostics.
-
-Fourth, DiSCO can flag records as at-risk due to synthetic data artifacts rather than genuine inferential vulnerability. If a synthesizer happens to produce a degenerate cell ($p_{stq}=1$) for a quasi-identifier combination through sampling variability or model idiosyncrasies—even when the original data for that combination are heterogeneous—DiSCO counts all matching original records as disclosive. This may overstate risk for combinations where no real adversary could reliably infer
-the sensitive attribute. RAPID avoids this by requiring that a predictive model trained on the synthetic data actually achieves high-confidence correct predictions on the original quasi-identifiers. Risk is only flagged when the attacker's model, using the released synthetic file, demonstrates genuine predictive capability—more closely aligned to a successful inference attack than to synthetic table quirks.
-
-Fifth, DiSCO does not calibrate for class imbalance or baseline prediction difficulty. In datasets with skewed sensitive attribute distributions (e.g., 90\% no condition, 8\% depression, 2\% anxiety), simply predicting the majority class yields high accuracy without genuine inference. DiSCO treats all $p_{stq}=1$ cells equally regardless of whether the unanimous value is common or rare. RAPID addresses this through class-normalized confidence scoring: for categorical targets, it compares the attacker's predicted probability for the true class against a model-estimated marginal baseline. This ensures that risk reflects predictive advantage beyond naive baseline strategies, analogous to \texttt{synthpop}'s baseline scaling for utility metrics but applied to disclosure risk. Records are
-only flagged when the attacker is substantially more confident than chance, calibrating risk assessment to class prevalence.
-
-Sixth, as quasi-identifier dimensionality or cardinality increases, DiSCO's contingency table approach becomes computationally and interpretatively unwieldy. With many high-cardinality categorical variables (e.g., occupation codes, geographic units), tables explode combinatorially and most cells become sparse or empty, making alignment across original and synthetic data fragile. RAPID trains a
-single predictive model once and evaluates predictions—often more scalable when quasi-identifiers would generate thousands of cells. Moreover, RAPID naturally provides actionable diagnostics through standard machine learning interpretability tools: feature importance rankings identify which quasi-identifiers drive risk most strongly, partial dependence plots reveal nonlinear relationships, and
-subgroup analyses highlight vulnerable demographic combinations. DiSCO, being table-based, offers transparency but less guidance on how to mitigate risk beyond coarsening keys.
-
-Seventh, DiSCO's results depend critically on quasi-identifier selection and specification choices. Different quasi-identifier sets or category definitions (e.g., coarsening age from 10 bins to 3) can yield substantially different risk assessments for the same data, as cell homogeneity ($p_{stq}=1$) changes with table granularity. Additionally, aligning quasi-identifier levels across original
-and synthetic datasets (including unioning categories that appear in one but not the other) introduces further complexity and sensitivity. RAPID sidesteps this fragility by treating quasi-identifiers as model features rather than pre-defined keys: the predictive model automatically learns which variables and interactions matter most for inference, without requiring hand-crafted contingency table
-specifications. Risk estimates remain stable across reasonable quasi-identifier definitions because the model adapts flexibly to the provided feature set.
-
-RAPID addresses these limitations by explicitly modeling the adversary's inference task: training predictive models on synthetic data and evaluating them on original quasi-identifiers. This attack-realistic approach naturally handles continuous targets without discretization, detects risk even when $p_{stq} < 1$ through confidence thresholding, produces individual-level confidence scores enabling
-nuanced risk stratification, aligns with genuine predictive capability rather than synthetic artifacts, calibrates for class imbalance through baseline-normalized scoring, and scales to high-dimensional settings while providing actionable diagnostics. Where DiSCO asks ``does this quasi-identifier group uniquely determine the sensitive value in synthetic data?'' RAPID asks ``could an adversary trained on synthetic data accurately infer this individual's sensitive attribute with
-confidence substantially exceeding baseline?''—directly simulating the inferential disclosure pathway under realistic modeling capabilities and class-aware evaluation.
-
-
-Case: angreifer augment synthetic data wiht public data.
-
-DiSCO flags records as attribute-disclosive when the synthetic data imply a unique target value for a given quasi-identifier combination $q$ (i.e., the synthetic column proportion $p_{stq}=1$ within that $q$-group), and it then counts the number of original records in those $q$-groups with that target $t$ (hence “Correct Original”). Formally (their Eq. 11),
-$\text{DiSCO} = 100 \times \sum_{q}\sum_{t} ( d_{tq} \mid p_{stq}=1)/N_d$,
-with related measures like DCAP and TCAP, alignment of $q/t$ levels across GT (original) and SD (synthetic), and options such as denominator limits and grouping continuous targets before cross-tabulation.
-
-Why RAPID can be preferable over DiSCO:
-
-1) Attack-realistic and model-based.
-RAPID explicitly trains a predictor on synthetic ($\mathbf{X}^{(s)}, \mathbf{y}^{(s)}$) and evaluates it on original $\mathbf{X}$, mirroring how an intruder would use released synthetic data to infer sensitive attributes. DiSCO is table-based on chosen keys $q$ and does not model $y \mid \mathbf{X}$. This makes RAPID closer to a modern inference attack than a key-uniqueness check.
-
-2) Works natively for continuous y.
-RAPID handles continuous targets via regression and an accuracy/risk threshold (e.g., relative error), avoiding discretization. DiSCO needs binning/grouping of continuous targets before cross-tabulation, and results can be sensitive to the grouping choice.
-
-3) Individual-level risk, not just group flags.
-RAPID produces per-record scores (e.g., relative confidence $r_i$ or accuracy indicators $g_i$) and summary curves over thresholds, enabling granular diagnostics and subgroup auditing. DiSCO is primarily an aggregated share of originals that become disclosive under synthetic $q$-groups.
-
-4) No fragile dependence on quasi-identifier design.
-RAPID can use all non-sensitive features (or any subset) without hand-crafted $q$. DiSCO requires selecting and aligning $q$ across GT/SD (including unioning levels), and results can change markedly with key choice or coarsening.
-
-5) Captures complex structure.
-With flexible learners (RF/GBM/GLM, etc.), RAPID detects nonlinearities and interactions in $y\mid \mathbf{X}$. DiSCO’s logic is based on degenerate synthetic conditional distributions within $q$ (i.e., $p_{stq}=1$), which can miss inferrability arising from complex, high-dimensional relations that don’t show as perfect within-cell certainty.
-
-6) Better aligned to “true” risk (fewer false alarms from synthetic artifacts).
-DiSCO can count records as risky when the synthetic data happen to be degenerate within a q cell—even when the original isn’t uniquely determined by that q (the paper notes a distinct DiSDiO variant that requires $p_{dtq}=1$). RAPID only flags risk when a model trained on SD actually predicts the original y well from original $\mathbf{X}$$, which is closer to a successful attack rather than a synthetic quirk.
-
-7) Calibrated to class imbalance via a predictive baseline.
-For categorical y, RAPID’s relative-confidence score compares the model’s probability for the true class to a marginal baseline estimated over the original $\mathbf{X}$. This is analogous in spirit to synthpop’s baseline scaling (e.g., $baseCAP_d$), but operates directly on predicted probabilities, yielding interpretable “how much better than chance” risk summaries.
-
-8) Scales in wide/high-cardinality settings.
-Building and aligning large contingency tables for many keys or high-cardinality factors (as DiSCO requires) can be heavy. RAPID trains a model once and evaluates predictions—often more scalable when q would explode combinatorially.
-
-9) Actionable diagnostics.
-RAPID naturally provides feature importance, partial-dependence, and subgroup risk profiles—useful for custodians to decide which variables or relations to weaken. DiSCO is transparent and simple, but offers less guidance on how to mitigate beyond coarsening keys.
-
-When DiSCO is still attractive
-	•	Transparent, key-based story for stakeholders comfortable with SDC notions of keys/uniques.
-	•	Built-in to synthpop with DCAP/TCAP comparators and options like denominator limits.
-	•	Quick categorical screening where clear quasi-identifiers are known a priori.  ￼
-
-
-Bottom line: \\
-DiSCO asks: “Does the synthetic table make a target value appear uniquely determined for this key?” \\
-RAPID asks: “Could an attacker trained only on the synthetic data accurately infer my sensitive attribute from non-sensitives?”
-
-For modern inference-attack realism, continuous targets, high-dimensional structure, and record-level diagnostics, RAPID offers clear advantages. For simple, explainable, key-centric screening that integrates with synthpop’s tooling, DiSCO remains useful.
-
-
-
-Critique of the holdout approach (for privacy/risk)
 \begin{itemize}
-    \item 	Measures memorization, not inference. Its privacy statistic is the fraction of synthetic records that are closer to training than to holdout records (distance-to-closest-record, DCR). A value near 50% suggests no special closeness to training data—good for memorization—but gives no guarantee that sensitive attributes can’t be accurately inferred from quasi-identifiers. High inference risk can coexist with “safe” DCR.
-    \item 	Sensitive to discretization and distance choices. The framework discretizes all variables (with a cap on cardinality) and then uses Hamming (or another) distance. Risk conclusions can vary with binning thresholds, category lumping, and metric choice—especially in mixed-type, high-dimensional data.     \item High-dimensional sparsity issues. Nearest-neighbor distances become unstable as dimensionality grows (curse of dimensionality). Even with binning, “closeness” can be hard to interpret and may over- or under-state record proximity.
-    \item Requires internal holdout access. Proper evaluation needs a real holdout split of the original data. That’s fine for an internal steward, but it doesn’t mirror what an external attacker can do with only the released synthetic file.
-    \item Utility–risk conflation gaps. The holdout framework’s fidelity side (TVDs of k-way marginals) is useful for representativeness, but it’s orthogonal to attribute-inference risk: a synthesizer can pass fidelity checks yet still leak labels via strong predictive relations; conversely, failing a DCR test doesn’t quantify per-variable harm.
-    \item Potential to be gamed by post-processing. Small perturbations or aggressive discretization can inflate DCR to look “safer” without materially reducing the ability to infer sensitive attributes.
+\item \textcolor{blue}{\textbf{Discretization dependence:} Table-based measures require binning continuous variables, with results sensitive to binning choices. RAPID handles continuous sensitive attributes natively via predictive modeling (e.g., random forests).}
+\item \textcolor{blue}{\textbf{Strict threshold:} DiSCO only flags risk when synthetic records are perfectly unanimous within a quasi-identifier group, missing vulnerabilities from strong but non-deterministic patterns. RAPID detects risk whenever normalized gain exceeds the threshold $\tau$.}
+\item \textcolor{blue}{\textbf{Binary classification:} Table-based measures provide binary risk flags without quantifying inference strength. RAPID produces continuous per-record scores enabling risk stratification.}
+\item \textcolor{blue}{\textbf{Class imbalance:} DiSCO does not calibrate for baseline prediction difficulty. RAPID's normalized gain accounts for marginal class prevalence, ensuring risk reflects genuine predictive advantage.}
+\item \textcolor{blue}{\textbf{Scalability:} Contingency tables become unwieldy with high-dimensional or high-cardinality quasi-identifiers. RAPID scales by training a single predictive model.}
 \end{itemize}
 
-Advantages of RAPID over holdout-based evaluation
+\textcolor{blue}{That said, DiSCO remains attractive for transparent, key-based screening when quasi-identifiers are well-defined and stakeholders prefer classical SDC concepts. The two approaches are complementary: DiSCO for quick categorical checks, RAPID for model-based attribute inference risk assessment.}
+
+\subsection{\textcolor{blue}{Comparison with holdout-based evaluation}}
+
+\textcolor{blue}{Holdout-based frameworks assess privacy via distance-to-closest-record (DCR), measuring whether synthetic records are closer to training than holdout records. While useful for detecting memorization, DCR does not quantify attribute inference risk: high attribute inference risk can coexist with ``safe'' DCR values if the synthesizer preserves predictive relationships without copying records.}
+
+\textcolor{blue}{RAPID directly addresses attribute inference by training on released data and scoring on original covariates. Unlike DCR, RAPID provides an interpretable, bounded metric calibrated to class prevalence. Importantly, the \texttt{riskutility} package optionally implements holdout-based evaluation, allowing practitioners to assess both memorization and attribute inference risk within a unified framework.}
+
+\subsection{\textcolor{blue}{Comparison with Bayesian approaches}}
+
+\textcolor{blue}{Bayesian disclosure risk measures \citep{Reiter_2014_Bayesiana, Hu_2021_Bayesian} provide posterior probabilities of attribute disclosure by integrating over uncertainty in the data-generating process. These approaches offer principled worst-case bounds but require distributional assumptions and can be computationally intensive.}
+
+\textcolor{blue}{RAPID takes a frequentist, simulation-based approach that is computationally efficient and assumption-light. Rather than providing worst-case bounds, RAPID estimates realized risk under a specified attacker model. Our simulation results (Section~5.6) demonstrate that RAPID estimates are robust across common tree-based attacker models (random forest, CART, gradient boosting). For conservative assessments, practitioners can evaluate multiple attacker models and report $\mathrm{RAPID}_{\max}$ (Section~2.4).}
+
+\subsection{\textcolor{blue}{Limitations}}
+
+\textcolor{blue}{Several limitations should be acknowledged:}
+
 \begin{itemize}
-    \item 	Directly measures attribute-inference risk. RAPID asks the attacker’s question (“Can I correctly infer a confidential attribute from quasi-identifiers?”) by training on the synthetic file and scoring on the real covariates. The holdout method instead assesses (i) fidelity via marginal distribution distances and (ii) privacy via nearest-neighbor closeness to training vs. holdout records; it does not quantify how well an adversary could predict the confidential label.
-    \item 	Interpretable, policy-ready metric. RAPID yields a single, bounded risk rate—e.g., the share of people for whom an attacker is ≥τ times more confident than the model’s class-baseline (categorical) or within ε relative error (continuous). This is easier to explain than distributions of total-variation distances or nearest-neighbor gaps.
-    \item 	Base-rate calibration. RAPID’s class-normalized confidence (“relative confidence”) avoids spurious risk inflation under class imbalance or miscalibration—issues common when using raw probabilities or accuracy. The holdout framework is model-free and therefore cannot calibrate risk to class prevalences or prediction confidence.
-    \item 	Aligned attacker model. RAPID constrains the intruder to the released synthetic file (train-on-synthetic, test-on-original), matching real public-release settings. The holdout approach requires access to an internal holdout of the original data during assessment and targets memorization/overfitting rather than inferential disclosure.
-    \item 	Comparable across releases and synthesizers. Because RAPID normalizes confidence by a model-implied baseline and reports a thresholded rate, numbers remain comparable even when marginal class distributions or calibration differ across releases; holdout TVDs and nearest-neighbor shares can shift with discretization, binning caps, and sample splits.
+\item \textcolor{blue}{\textbf{Model dependence:} RAPID estimates depend on the attacker model used. However, tree-based methods such as random forests already capture complex interactions among quasi-identifiers, and our simulation results (Section~5.6) show robustness across common attacker models. For a conservative assessment, practitioners can evaluate RAPID using an ensemble of machine learning methods and report $\mathrm{RAPID}_{\max}$ -- the maximum observed risk across models (Section~2.4).}
+\item \textcolor{blue}{\textbf{Single sensitive attribute:} The current formulation assesses risk for one sensitive attribute at a time. In practice, datasets often contain multiple sensitive variables. Extending RAPID to joint or sequential assessment of multiple attributes is a direction for future work.}
+\item \textcolor{blue}{\textbf{Threshold selection:} The choice of $\tau$ (or $\varepsilon$ for continuous attributes) affects risk estimates. Our simulations suggest $\tau = 0.3$ as a reasonable default for weakly to moderately dependent data, with higher thresholds appropriate when dependencies are strong (Section~5.4). Data-driven threshold selection via permutation tests offers an alternative.}
 \end{itemize}
 
-Bottom line. Holdout-based evaluation is valuable for fidelity and for detecting memorization/overfitting to training records in a model-free way. RAPID complements—and for disclosure risk, improves upon—this by quantifying exactly what many stewards and regulators care about: how often a capable intruder, using only the released synthetic file, could be confidently correct about a person’s confidential attribute, with class-imbalance calibration and a single interpretable rate.
+\subsection{\textcolor{blue}{Practical guidance}}
 
-
-Public Use Files (PUFs) are datasets released openly, often on public websites, with minimal barriers to access. These files are heavily anonymized through traditional Statistical Disclosure Control (SDC) techniques such as generalization, suppression, and top/bottom coding. The emphasis is on eliminating both direct identifiers and key indirect identifiers to ensure that the risk of reidentification is extremely low. While some advocate for the use of DP to strengthen protections here, it's important to recognize that DP is not inherently designed for static data release. Applying DP to create “DP-anonymized” PUFs (e.g., DP-synthetic data) is technically possible but offers limited practical utility unless access is tightly controlled and a privacy budget is enforced, which contradicts the very openness of PUFs.
-
-Scientific Use Files (SUFs), by contrast, are made available only under formal agreements, typically to accredited researchers with a legitimate need. These datasets are usually more detailed than PUFs and may retain some potentially identifying indirect variables. Though still anonymized, SUFs acknowledge the residual risk of linkage attacks, especially when external datasets are available. While DP could theoretically be applied to SUFs to enhance protections, its formal guarantees only hold under carefully controlled, bounded interaction models—not static release. Hence, using DP here may give a false sense of security, especially if data are copied or used repeatedly in analysis pipelines without strict budget enforcement.
-
-RM: possible limitations:
+\textcolor{blue}{Based on our empirical results, we offer the following guidance for practitioners:}
 \begin{itemize}
-  \item RAPID is not model-agnostic, i.e., the risk measure is strongly dependent on the fitted model. This also includes feature engineering. A sufficiently motivated attacker could derive new features from existing variables, potentially boosting prediction performance substantially. RAPID is therefore not a worst-case, conservative measure like the Bayesian risk, which provides an upper bound on risk. Instead, in comparison with Bayesian risk (Reiter, 2014) it can be interpreted as a lower-bound estimate: the true risk will be at least this large.
-  \item What if there are multiple sensitive variables, which is basically always the case in practice?
-  \item A comparison with bayesian risk measures for synthetic data could also be interesting, see:
-  \begin{itemize}
-     \item Bayesian Estimation of Attribute and Identification  Disclosure Risks in Synthetic Data (Hu, 2021)
-     \item Bayesian Estimation of Disclosure Risks for  Multiply Imputed, Synthetic Data (Reiter et al., 2014)
-     \item Implementation as R package: Bayesian Estimation of Attribute Disclosure Risks in Synthetic Data with the AttributeRiskCalculation R Package (Hornby & Hu, 2022)
-   \end{itemize}
+\item \textcolor{blue}{Use $\tau = 0.3$ as a starting point for categorical attributes and $\varepsilon = 10\%$ for continuous attributes.}
+\item \textcolor{blue}{Evaluate RAPID using multiple attacker models (e.g., random forest, gradient boosting) and report the maximum observed risk for a conservative assessment.}
+\item \textcolor{blue}{Generate threshold curves (RAPID vs.\ $\tau$) to understand sensitivity and guide threshold selection for specific policy requirements.}
+\item \textcolor{blue}{Use the per-record risk scores for attribution analysis to identify which quasi-identifier combinations drive disclosure risk.}
+\item \textcolor{blue}{Combine RAPID with utility metrics to navigate the privacy-utility trade-off when comparing synthesizers or anonymization strategies.}
 \end{itemize}
 
-\subsection{Ethical and legal considerations}\label{subsec:ethics}
-The evaluation assumes the attacker does \emph{not} access original labels beyond those implicit in \(\mathbf{Z}\) for scoring. Risk numbers should be interpreted in the context of legal thresholds and harm models for the specific domain (e.g., health, labor). When reporting, avoid releasing per-record scores \(r_i\) or \(h_i\); publish only aggregated metrics and confidence intervals.
+\section{Conclusion}
 
-\subsection{Summary}\label{subsec:summary}
-The proposed workflow -- train on synthetic, score on real covariates, normalize by model-implied baselines, and summarize by \(\mathrm{RCIR}\) with uncertainty -- yields an interpretable, model-agnostic measure of inference disclosure risk. The real data illustration shows how to operationalize the protocol on a standard benchmark; the same steps apply to domain datasets (e.g., longitudinal panels or mobility traces) with choice of \(\tau/\varepsilon\) tailored to sensitivity.
+\textcolor{blue}{We introduced RAPID (Risk of Attribute Prediction-Induced Disclosure), an attacker-realistic measure of attribute inference risk for released microdata. By comparing an attacker's predicted confidence against a marginal baseline and computing the normalized gain, RAPID quantifies how much the released data enables inference beyond what would be possible from class prevalences alone. While we focused on synthetic data as the primary application, RAPID applies equally to traditionally anonymized data or any released dataset where attribute inference is a concern.}
 
-\cite{pilgram25} erwaehne, dass es dazu passt als Mosaikstein.
+\textcolor{blue}{Key features of RAPID include: (i) applicability to both categorical and continuous sensitive attributes; (ii) calibration for class imbalance through baseline normalization; (iii) per-record risk scores enabling granular diagnostics and attribution analysis; (iv) robustness across common attacker models; and (v) interpretable, bounded output suitable for policy decisions.}
 
-\section{conclusion}
+\textcolor{blue}{Our simulation studies demonstrate that RAPID scales appropriately with dependency strength between quasi-identifiers and sensitive attributes, and that threshold selection can be guided by the convex-to-concave transition in threshold curves. The real-data illustration on the UCI Adult dataset shows the practical workflow.}
 
-We introduced a calibrated, attacker-realistic measure of inference disclosure for synthetic microdata. By normalizing correct-class confidence to a class-specific baseline and summarizing the share above a threshold, the metric is interpretable, robust to class imbalance, and easily integrated with existing synthetic-data workflows. It complements utility diagnostics and aligns with modern intruder models from both official statistics and machine learning. Future work includes formal power analyses for threshold selection, extensions to multi-label outcomes, and integration with end-to-end risk-utility dashboards.
+\textcolor{blue}{Future work includes extensions to multiple sensitive attributes, formal power analyses for threshold selection, and integration with utility metrics in end-to-end risk-utility dashboards. The \texttt{riskutility} R package accompanying this paper provides a ready-to-use implementation.}
 
 \color{black}
+
+
+\textcolor{red}{Roman: magst du noch die Referenzen durchgehen? :-)}
 
 \bibliographystyle{plainnat}
 \bibliography{references}
