@@ -105,8 +105,8 @@ compute_rapid_new <- function(original_data,
 
 cat("Computing RAPID across tau values for threshold curve...\n")
 
-taus <- seq(0.0, 1.0, by = 0.15) # Reduced for speed; decrease to 0.05 for final
-R <- n_boot_curve <- 10  # Reduced for speed; increase to 500 for final
+taus <- seq(0.0, 1.0, by = 0.05) # Reduced for speed; decrease to 0.05 for final
+R <- n_boot_curve <- 50  # Reduced for speed; increase to 500 for final
 mymodel <- "rf" # Used for speed; use "rf" for final.
 
 # Compute RAPID for each tau and each synthetic replicate
@@ -182,7 +182,7 @@ print(p)
 # 6. Summary statistics at default threshold
 ################################################################################
 
-R <- 5 # increase to at least 500
+R <- 500 # increase to at least 500
 cat("\n=== Summary at default threshold tau = 0.3 ===\n")
 
 default_tau <- 0.3
