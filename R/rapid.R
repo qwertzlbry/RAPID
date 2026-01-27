@@ -24,7 +24,6 @@
 #' - For continuous: proportion and subset of records within error tolerance.
 #' - For categorical: RAPID metric and supporting confidence measures.
 #'
-#'
 #' @importFrom stats predict lm as.formula
 #' @importFrom utils head
 #' @importFrom ranger ranger
@@ -112,9 +111,10 @@ rapid <- function(original_data,
                   # Numeric-specific
                   num_na_strategy = c("constant", "drop", "median"), #num_na_strategy
                   num_constant_value = 0, #num_constant_value
-                  num_error_metric = c("mae", "rmse", "rmae", "rrmse"), #num_error_metric
-                  num_epsilon_type = c("Percentage", "Value"), # num_epsilon_type
+                  num_error_metric = c("symmetric", "stabilised_relative", "absolute"),
+                  num_epsilon_type = c("percentage", "absolute"),
                   num_epsilon = NULL, #num_epsilon
+                  num_delta = 0.01,
 
                   # Categorical-specific
                   cat_eval_method =c("RCS_conditional", "RCS_marginal", "NCE"), #cat_eval_method
@@ -134,8 +134,7 @@ rapid <- function(original_data,
 
   # Argument matching and setup
   model_type <- match.arg(model_type)
-  num_error_metric <- tolower(num_error_metric)
-  num_error_metric <- match.arg(num_error_metric, choices = c("mae", "rmse", "rmae", "rrmse"))
+  num_error_metric <- match.arg(num_error_metric)
   num_epsilon_type <- match.arg(num_epsilon_type)
   num_na_strategy <- match.arg(num_na_strategy)
   cat_eval_method <- match.arg(cat_eval_method)
@@ -202,7 +201,7 @@ rapid <- function(original_data,
     eval <- evaluate_categorical(A, B, cat_tau, original_data, cat_eval_method, sensitive_attribute, return_all_records)
   } else {
   # Continuous evaluation (sub function)----------------------------------------
-    eval <- evaluate_numeric(A, B, original_data, num_error_metric, num_epsilon, num_epsilon_type, return_all_records)
+    eval <- evaluate_numeric(A, B, original_data, num_error_metric, num_epsilon, num_epsilon_type, num_delta, return_all_records)
   }
 
   if (trace){
