@@ -106,7 +106,7 @@ rapid <- function(original_data,
                   synthetic_data,
                   quasi_identifiers,
                   sensitive_attribute,
-                  model_type = c("lm", "rf", "cart", "gbm", "logit"),
+                  model_type = c("rf", "cart", "gbm", "logit","lm"),
 
                   # Numeric-specific
                   num_na_strategy = c("constant", "drop", "median"), #num_na_strategy
@@ -117,7 +117,7 @@ rapid <- function(original_data,
                   num_delta = 0.01,
 
                   # Categorical-specific
-                  cat_eval_method =c("RCS_conditional", "RCS_marginal", "NCE"), #cat_eval_method
+                  cat_eval_method =c("RCS_marginal","RCS_conditional", "NCE"), #cat_eval_method
                   cat_tau = 1, #cat_tau
 
                   # Varia

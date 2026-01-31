@@ -153,11 +153,11 @@ p <- ggplot(rapid_df, aes(x = tau, y = rapid_mean)) +
   geom_vline(xintercept = 0.3, linetype = "dashed", color = "red", linewidth = 0.5) +
   annotate("text", x = 0.32, y = max(rapid_df$rapid_mean) * 0.9,
            label = expression(tau == 0.3), hjust = 0, color = "red") +
-  scale_x_continuous(breaks = seq(0, 1, by = 0.1)) +
+  scale_x_continuous(breaks = seq(0, 1, by = 0.05)) +
   scale_y_continuous(limits = c(0, 1), breaks = seq(0, 1, by = 0.1)) +
   labs(
-    title = expression("RAPID vs Normalized Gain Threshold (" * tau * ")"),
-    subtitle = "Mean and range across 5 synthetic replicates (UCI Adult dataset)",
+    #title = expression("RAPID vs Normalized Gain Threshold (" * tau * ")"),
+    #subtitle = "Mean and range across 5 synthetic replicates (UCI Adult dataset)",
     x = expression(paste("Normalized Gain Threshold ", tau)),
     y = "RAPID (proportion at risk)"
   ) +
@@ -168,8 +168,10 @@ p <- ggplot(rapid_df, aes(x = tau, y = rapid_mean)) +
   )
 
 # Save plot
-output_path <- "/Users/matthias/workspace26/RAPID/inst/doc/paper/rapid_curve_quantile.pdf"
-pdf(output_path, width = 8, height = 6)
+#output_path <- "/Users/matthias/workspace26/RAPID/inst/doc/paper/rapid_curve_quantile.pdf"
+
+output_path <- "assets/plot_rapid_curve_quantile.pdf"
+pdf(output_path, width = 10, height = 6)
 print(p)
 dev.off()
 

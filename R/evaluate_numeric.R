@@ -81,7 +81,7 @@ evaluate_numeric <- function(A, B, original_data,
   if (!is.numeric(num_epsilon)) {
     stop("`epsilon` must be numeric and represent either a raw error or percentage.")
   }
-  if (!is.numeric(delta) || delta <= 0) {
+  if (!is.numeric(num_delta) || num_delta <= 0) {
     stop("delta must be a positive numeric value")
   }
 
@@ -91,11 +91,11 @@ evaluate_numeric <- function(A, B, original_data,
   # Compute error based on chosen metric
   error_values <- switch(num_error_metric,
                          symmetric = {
-                          err <-  2 * abs(A - B) / (abs(A) + abs(B) + 2*delta)
+                          err <-  2 * abs(A - B) / (abs(A) + abs(B) + 2*num_delta)
                           if (as_percentage) err * 100 else err
                          },
                          stabilised_relative = {
-                          err <- abs(A - B) / (abs(A) + delta)
+                          err <- abs(A - B) / (abs(A) + num_delta)
                            if (as_percentage) err * 100 else err
                          },
                          absolute = {

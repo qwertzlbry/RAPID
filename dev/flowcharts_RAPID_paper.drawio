@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36 Edg/143.0.0.0" version="28.2.3" pages="3">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36" version="29.2.2" pages="3">
   <diagram name="flowchart_datauser" id="SRy7Vvg2fC7YVFaokJHv">
     <mxGraphModel dx="1143" dy="545" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="583" math="0" shadow="0">
       <root>
@@ -166,7 +166,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="bMTB_GyfO6ytTDKUzgyq" name="Seite-3">
-    <mxGraphModel dx="1370" dy="501" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="583" math="1" shadow="0">
+    <mxGraphModel dx="1112" dy="399" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="583" math="1" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -257,7 +257,7 @@
             <mxPoint x="420" y="220" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O4GJ6SMMjyY9Lo3VUGW4-21" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;" value="&lt;b&gt;&lt;font face=&quot;Helvetica&quot;&gt;Adversary&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;div&gt;&lt;div&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 11px;&quot;&gt;&lt;i&gt;Trains&lt;/i&gt; model:&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 10px;&quot;&gt;\(\hat{f} = \arg\min_{f\in \mathcal{F}}L\!\left(f(X^{s}),\,y^{s}\right) \)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 11px;&quot;&gt;&lt;i&gt;Infers&lt;/i&gt; sensitive attribute:&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 10px;&quot;&gt;\(\hat{y} = \hat{f}(X)\)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
+        <mxCell id="O4GJ6SMMjyY9Lo3VUGW4-21" parent="1" style="ellipse;whiteSpace=wrap;html=1;align=center;" value="&lt;b&gt;&lt;font face=&quot;Helvetica&quot;&gt;Adversary&lt;/font&gt;&lt;/b&gt;&lt;div&gt;&lt;b&gt;&lt;br&gt;&lt;/b&gt;&lt;div&gt;&lt;div&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 11px;&quot;&gt;&lt;i&gt;Trains&lt;/i&gt; model:&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 10px;&quot;&gt;\(\hat{f} = \arg\min_{f\in \mathcal{F}}L\!\left(f(X^{s}),\,y^{s}\right) \)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 11px;&quot;&gt;&lt;i&gt;Infers&lt;/i&gt; sensitive attribute:&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255);&quot;&gt;&lt;font face=&quot;Helvetica&quot; style=&quot;font-size: 10px;&quot;&gt;\(\hat{y} = \hat{f}(\tilde{X})\)&lt;/font&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;" vertex="1">
           <mxGeometry height="117.5" width="170" x="285" y="331.25" as="geometry" />
         </mxCell>
         <mxCell id="O4GJ6SMMjyY9Lo3VUGW4-22" edge="1" parent="1" source="O4GJ6SMMjyY9Lo3VUGW4-19" style="endArrow=classic;html=1;rounded=0;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="O4GJ6SMMjyY9Lo3VUGW4-21" value="">
@@ -278,7 +278,7 @@
             <mxPoint x="140" y="310" as="targetPoint" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="O4GJ6SMMjyY9Lo3VUGW4-38" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="External Information&amp;nbsp;&lt;span style=&quot;font-family: SFMono-Regular, Menlo, Monaco, Consolas, &amp;quot;Liberation Mono&amp;quot;, &amp;quot;Courier New&amp;quot;, monospace; text-align: left; background-color: rgb(255, 255, 255);&quot;&gt;\(X\)&lt;/span&gt;" vertex="1">
+        <mxCell id="O4GJ6SMMjyY9Lo3VUGW4-38" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="External Information&amp;nbsp;&lt;span style=&quot;font-family: SFMono-Regular, Menlo, Monaco, Consolas, &amp;quot;Liberation Mono&amp;quot;, &amp;quot;Courier New&amp;quot;, monospace; text-align: left; background-color: rgb(255, 255, 255);&quot;&gt;\(\tilde{X}\)&lt;/span&gt;" vertex="1">
           <mxGeometry height="30" width="140" x="80" y="350" as="geometry" />
         </mxCell>
         <mxCell id="O4GJ6SMMjyY9Lo3VUGW4-39" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="- Public DBs&lt;div&gt;- QIs&lt;font style=&quot;color: rgb(255, 255, 255);&quot;&gt;______&lt;/font&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;...&lt;/span&gt;&lt;/div&gt;" vertex="1">
