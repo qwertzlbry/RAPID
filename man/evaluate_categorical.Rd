@@ -2,26 +2,173 @@
 % Please edit documentation in R/evaluate_categorical.R
 \name{evaluate_categorical}
 \alias{evaluate_categorical}
-\title{Evaluate categorical predictions for RAPID risk}
+\title{Evaluate Categorical Attribute Inference Risk (RAPID)}
 \usage{
-evaluate_categorical(true_labels, predicted_probs, tau)
+evaluate_categorical(
+  A,
+  B,
+  cat_tau,
+  original_data,
+  cat_eval_method = c("RCS_conditional", "RCS_marginal", "NCE"),
+  sensitive_attribute,
+  return_all_records = FALSE
+)
 }
 \arguments{
-\item{true_labels}{A factor vector of true class labels (the sensitive attribute in the original data).}
+\item{A}{A factor vector of true class labels (the sensitive attribute in the original data).}
 
-\item{predicted_probs}{A matrix or data frame of predicted class probabilities 
+\item{B}{A matrix or data frame of predicted class probabilities
 (rows = observations, columns = classes, typically output from predict()).}
 
-\item{tau}{A numeric threshold for the relative confidence score (default: 1.0+).}
+\item{cat_tau}{A numeric threshold for the risk score. Interpretation depends on method:
+\itemize{
+  \item For \code{RCS_conditional}: threshold for ratio (typically 1.25)
+  \item For \code{RCS_marginal}: threshold for normalized gain (typically 0.3)
+  \item For \code{NCE}: threshold for risk score (typically 0.5-0.7)
+}}
+
+\item{original_data}{Data frame of original data.}
+
+\item{cat_eval_method}{Method for calculating risk score. Options:
+\describe{
+  \item{\code{RCS_conditional}}{Relative Confidence Score with class-conditional baseline.
+        Measures if observation is an outlier within its class. Uses simple ratio \eqn{r_i = g_i / b_i}
+        where \eqn{b_i} is the mean prediction for observations in the same true class.}
+  \item{\code{RCS_marginal}}{Relative Confidence Score with marginal baseline (recommended).
+        Measures if attribute can be inferred better than baseline rate from original data.
+        Uses normalized gain \eqn{(g_i - b_i) / (1 - b_i)} where \eqn{b_i} is the marginal
+        frequency of the true class in original data. Provides fair comparison across classes.}
+  \item{\code{NCE}}{Normalized Cross-Entropy. Measures information leakage using
+        entropy-based approach.}
+}
+Default: \code{"RCS_marginal"}}
+
+\item{sensitive_attribute}{Character string specifying the name of the sensitive
+attribute column in original_data (required for RCS_marginal).}
+
+\item{return_all_records}{Logical; if \code{TRUE}, return all records with their risk
+status. If \code{FALSE} (default), return only at-risk records.}
 }
 \value{
-A list with:
-  \item{confidence_rate}{Proportion of observations with relative score above \code{tau}.}
-  \item{relative_score}{Vector of per-observation scores: predicted prob for true class divided by average class baseline.}
-  \item{true_probs}{Vector of predicted probabilities for the true class label.}
+A list with elements depending on the method. All methods return:
+\describe{
+  \item{method}{Character string indicating which method was used}
+  \item{confidence_rate (or risk_rate for NCE)}{Proportion of observations at risk (0-1)}
+  \item{n_at_risk}{Number of records flagged as at-risk}
+  \item{percentage}{Percentage of at-risk records (0-100)}
+  \item{rows_risk_df}{Data frame with all records (if \code{return_all_records = TRUE})
+    or only at-risk records (if \code{FALSE}), including original data, predictions,
+    risk scores, and \code{at_risk} flag}
+}
+
+  Method-specific additional components:
+
+  For \code{RCS_conditional}:
+  \itemize{
+    \item{\code{relative_score}}{Vector of per-observation ratios: \eqn{g_i / b_i}}
+    \item{\code{baseline}}{Vector of class-conditional baselines}
+    \item{\code{true_probs}}{Vector of predicted probabilities for the true class (\eqn{g_i})}
+  }
+
+  For \code{RCS_marginal}:
+  \itemize{
+    \item{\code{normalized_gain}}{Vector of per-observation normalized improvements over baseline}
+    \item{\code{baseline}}{Vector of marginal baselines from original data}
+    \item{\code{true_probs}}{Vector of predicted probabilities for the true class (\eqn{g_i})}
+  }
+
+  For \code{NCE}:
+  \itemize{
+    \item{\code{normalized_ce}}{Vector of normalized cross-entropy values}
+    \item{\code{true_probs}}{Vector of predicted probabilities for the true class}
+  }
 }
 \description{
-Computes the RAPID metric for a categorical sensitive attribute by comparing 
-predicted class probabilities from a model trained on synthetic data against 
-the true labels in the original data.
+Computes the RAPID metric for a categorical sensitive attribute by comparing
+predicted class probabilities from a model trained on synthetic data against
+the true labels in the original data. Supports multiple evaluation methods
+for measuring inferential disclosure risk.
+}
+\details{
+The choice of method affects both the interpretation and recommended threshold:
+
+\strong{RCS_conditional} (class-conditional baseline):
+\itemize{
+  \item Measures: "Is this observation unusual compared to others in its class?"
+  \item Use case: Identifying outliers within classes
+  \item Recommended cat_tau: 1.25 (25\% better than class average)
+  \item Note: Risk may decrease as model quality increases (paradoxical behavior)
+}
+
+\strong{RCS_marginal} (marginal baseline, recommended):
+\itemize{
+  \item Measures: "Can the attribute be inferred better than baseline rate?"
+  \item Use case: Inferential disclosure risk assessment
+  \item Recommended cat_tau: 0.3 (30\% of possible improvement over baseline)
+  \item Advantages: Fair across classes, accounts for class imbalance, consistent with
+    numeric case, monotonic with model quality
+}
+
+\strong{NCE} (Normalized Cross-Entropy):
+\itemize{
+  \item Measures: Information leakage via entropy
+  \item Use case: Information-theoretic risk assessment
+  \item Recommended cat_tau: 0.5-0.7
+}
+}
+\examples{
+\dontrun{
+# Example with RCS_marginal (recommended)
+library(ranger)
+
+# Fit model on synthetic data
+fit <- ranger(disease_status ~ age + income + education,
+              data = synthetic_data, probability = TRUE)
+
+# Get predictions on original data
+pred_probs <- predict(fit, original_data)$predictions
+
+# Evaluate risk
+result <- evaluate_categorical(
+  A = original_data$disease_status,
+  B = pred_probs,
+  cat_tau = 0.3,
+  original_data = original_data,
+  sensitive_attribute = "disease_status",
+  cat_eval_method = "RCS_marginal",
+  return_all_records = TRUE
+)
+
+# Access results
+print(result$confidence_rate)  # Proportion at risk
+print(result$n_at_risk)        # Number of at-risk records
+head(result$rows_risk_df)      # Per-record details
+
+# Plot normalized gain distribution
+hist(result$normalized_gain,
+     main = "Distribution of Normalized Gain",
+     xlab = "Normalized Gain")
+abline(v = 0.3, col = "red", lty = 2)  # Threshold
+
+# Example with RCS_conditional
+result_cond <- evaluate_categorical(
+  A = original_data$disease_status,
+  B = pred_probs,
+  cat_tau = 1.25,
+  original_data = original_data,
+  sensitive_attribute = "disease_status",
+  cat_eval_method = "RCS_conditional"
+)
+
+# Example with NCE
+result_nce <- evaluate_categorical(
+  A = original_data$disease_status,
+  B = pred_probs,
+  cat_tau = 0.6,
+  original_data = original_data,
+  sensitive_attribute = "disease_status",
+  cat_eval_method = "NCE"
+)
+}
+
 }

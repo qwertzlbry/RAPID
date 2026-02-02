@@ -8,8 +8,8 @@ handle_sensitive_na(
   original_data,
   synthetic_data,
   sensitive_attribute,
-  numeric_na_strategy = c("constant", "drop", "median"),
-  constant_value = 0
+  num_na_strategy = c("constant", "drop", "median"),
+  num_constant_value = 0
 )
 }
 \arguments{
@@ -19,9 +19,9 @@ handle_sensitive_na(
 
 \item{sensitive_attribute}{Name of the sensitive attribute (string).}
 
-\item{numeric_na_strategy}{Strategy for handling missing numeric values: one of "drop", "constant", or "median".}
+\item{num_na_strategy}{Strategy for handling missing numeric values: one of "drop", "constant", or "median".}
 
-\item{constant_value}{Value used for imputation if \code{numeric_na_strategy = "constant"}.}
+\item{num_constant_value}{Value used for imputation if \code{num_na_strategy = "constant"}.}
 }
 \value{
 A list with cleaned \code{original_data} and \code{synthetic_data}.

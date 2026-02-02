@@ -22,8 +22,8 @@ A named list with one or more of the following elements:
   \item{rrmse}{Relative RMSE: \code{rmse / sd(A)}.}
 }
 \description{
-Computes evaluation metrics for classification (accuracy) or regression tasks 
-(MAE, RMSE, relative MAE, relative RMSE), used for assessing attacker model performance 
+Computes evaluation metrics for classification (accuracy) or regression tasks
+(MAE, RMSE, relative MAE, relative RMSE), used for assessing attacker model performance
 in the RAPID disclosure risk framework.
 }
 \examples{

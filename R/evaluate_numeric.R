@@ -4,21 +4,22 @@
 #' Computes RAPID disclosure risk for a continuous sensitive attribute by evaluating
 #' how closely synthetic-trained models can predict true values. Risk is measured
 #' by the proportion of records for which prediction errors fall below a chosen
-#' threshold. Two threshold types are supported: percentage-based (relative error)
-#' and absolute (raw error on the original scale).
+#' threshold.
 #'
 #' @param A Vector of true sensitive values (numeric).
 #' @param B Vector of predicted values (numeric), from a model trained on synthetic data.
 #' @param original_data Data frame of original data (for reporting records with high-risk predictions).
 #' @param num_error_metric Error metric: one of \code{"symmetric"} (default, recommended),
 #'   \code{"stabilised_relative"}, or \code{"absolute"}. See Details.
-#' @param num_epsilon Numeric threshold. For percentage-based metrics, specify as a
-#'   percentage (e.g., 5 for 5\%). For absolute error, specify in the units of the
-#'   sensitive attribute (e.g., 1000 for $1000).
-#' @param num_epsilon_type Threshold type: either \code{"percentage"} for relative error
-#'   metrics, or \code{"absolute"} for raw error on the original scale. Default is \code{"percentage"}.
-#' @param delta Smoothing constant to prevent division by zero for percentage-based metrics
-#'   (default 0.01). Only used when \code{num_epsilon_type = "percentage"}.
+#' @param num_epsilon Numeric threshold. Interpretation depends on \code{num_error_metric}.
+#'   For relative metrics, this is a relative error threshold; for \code{"absolute"}, this is
+#'   an absolute error threshold on the original scale.
+#' @param num_epsilon_scale Scale of \code{num_epsilon} for relative metrics:
+#'   \code{"proportion"} means \code{0.05} corresponds to 5\%, and \code{"percent"} means \code{5}
+#'   corresponds to 5\%. Only used when \code{num_error_metric} is \code{"symmetric"} or
+#'   \code{"stabilised_relative"}.
+#' @param num_delta Smoothing constant to prevent division by zero for relative metrics
+#'   (default 0.01). Only used for \code{"symmetric"} and \code{"stabilised_relative"}.
 #' @param return_all_records Logical; if \code{TRUE}, return all records with their risk
 #'   status. If \code{FALSE} (default), return only at-risk records.
 #'
@@ -26,94 +27,126 @@
 #' Three error metrics are available:
 #' \itemize{
 #'   \item \code{symmetric}: Symmetric percentage error (recommended). Treats predicted and
-#'     true values symmetrically: \eqn{2|y - \hat{y}| / (|y| + |\hat{y}| + 2\delta)}.
-#'   \item \code{stabilised_relative}: Stabilised relative error: \eqn{|y - \hat{y}| / (|y| + \delta)}.
-#'   \item \code{absolute}: Absolute error: \eqn{|y - \hat{y}|}. Only meaningful with
-#'     \code{num_epsilon_type = "absolute"}.
+#'     true values symmetrically:
+#'     \eqn{2|y - \hat{y}| / (|y| + |\hat{y}| + 2\delta)}.
+#'   \item \code{stabilised_relative}: Stabilised relative error:
+#'     \eqn{|y - \hat{y}| / (|y| + \delta)}.
+#'   \item \code{absolute}: Absolute error:
+#'     \eqn{|y - \hat{y}|}.
 #' }
 #'
-#' When \code{num_epsilon_type = "percentage"}, errors are expressed as percentages (0-100 scale).
-#' When \code{num_epsilon_type = "absolute"}, raw absolute errors are used.
+#' For relative metrics (\code{"symmetric"} and \code{"stabilised_relative"}), errors are computed
+#' on a 0--1 scale. The threshold \code{num_epsilon} is interpreted according to
+#' \code{num_epsilon_scale}:
+#' \itemize{
+#'   \item \code{num_epsilon_scale = "proportion"}: use \code{0.05} for 5\%
+#'   \item \code{num_epsilon_scale = "percent"}: use \code{5} for 5\% (internally converted to 0.05)
+#' }
 #'
 #' @return A list containing:
 #' \describe{
 #'   \item{confidence_rate}{Proportion of records at risk (between 0 and 1).}
 #'   \item{n_at_risk}{Number of records with prediction errors below the threshold.}
-#'   \item{percentage}{Percentage of at-risk records.}
+#'   \item{percentage}{Percentage of at-risk records (0--100 scale).}
 #'   \item{rows_risk_df}{Data frame of records (all or at-risk only, depending on
 #'     \code{return_all_records}) with original values, predictions, error metrics,
-#'     and risk status.}
+#'     and risk status. For relative metrics the error column is
+#'     \code{symmetric_error} or \code{stabilised_relative_error}; for absolute it is
+#'     \code{absolute_error}. The table also includes \code{num_epsilon_input} and the
+#'     converted \code{num_epsilon} actually used for the comparison.}
 #' }
 #'
 #' @examples
 #' \dontrun{
-#' # Percentage-based with symmetric error (recommended)
+#' # Relative metric (symmetric), epsilon given in percent (5 means 5%)
 #' result <- evaluate_numeric(
 #'   A = original_data$income,
 #'   B = predictions,
 #'   original_data = original_data,
 #'   num_error_metric = "symmetric",
-#'   num_epsilon = 5,  # 5% error threshold
-#'   num_epsilon_type = "percentage"
+#'   num_epsilon = 5,
+#'   num_epsilon_scale = "percent"
 #' )
 #'
-#' # Absolute threshold
-#' result <- evaluate_numeric(
+#' # Relative metric, epsilon given as proportion (0.05 means 5%)
+#' result_prop <- evaluate_numeric(
 #'   A = original_data$income,
 #'   B = predictions,
 #'   original_data = original_data,
-#'   num_epsilon = 1000,  # $1000 error threshold
-#'   num_epsilon_type = "absolute"
+#'   num_error_metric = "symmetric",
+#'   num_epsilon = 0.05,
+#'   num_epsilon_scale = "proportion"
+#' )
+#'
+#' # Absolute threshold (e.g., income in dollars)
+#' result_abs <- evaluate_numeric(
+#'   A = original_data$income,
+#'   B = predictions,
+#'   original_data = original_data,
+#'   num_error_metric = "absolute",
+#'   num_epsilon = 1000,
+#'   return_all_records = TRUE
 #' )
 #' }
 #'
 #' @export
+
 evaluate_numeric <- function(A, B, original_data,
                              num_error_metric = c("symmetric", "stabilised_relative", "absolute"),
                              num_epsilon,
-                             num_epsilon_type = c("percentage", "absolute"),
+                             num_epsilon_scale = c("proportion", "percent"), # 0.05 vs 5
                              num_delta = 0.01,
-                             error_as_percentage = FALSE,
                              return_all_records = FALSE) {
 
   num_error_metric <- match.arg(num_error_metric)
+  num_epsilon_scale <- match.arg(num_epsilon_scale)
+
+
+  # Validation
+  if (!is.logical(return_all_records) || length(return_all_records) != 1) {
+    stop("`return_all_records` must be a single TRUE/FALSE.")
+  }
 
   if (!is.numeric(num_epsilon)) {
-    stop("`epsilon` must be numeric and represent either a raw error or percentage.")
+    stop("`num_epsilon` must be numeric and represent either a raw error or percentage.")
   }
   if (!is.numeric(num_delta) || num_delta <= 0) {
-    stop("delta must be a positive numeric value")
+    stop("num_delta must be a positive numeric value")
   }
+  if (!is.numeric(A) || !is.numeric(B)) stop("`A` and `B` must be numeric.")
+  if (length(A) != length(B)) stop("`A` and `B` must have the same length.")
+  if (!is.data.frame(original_data)) stop("`original_data` must be a data.frame.")
+  if (nrow(original_data) != length(A)) stop("nrow(original_data) must equal length(A).")
 
 
-  if (num_epsilon_type == "percentage") {
+   is_relative <- num_error_metric %in% c("symmetric","stabilised_relative")
+   if (is_relative && num_epsilon_scale == "proportion" && num_epsilon > 1) {
+     warning("`num_epsilon` is > 1 but `num_epsilon_scale='proportion'`. Did you mean `num_epsilon_scale='percent'` (e.g., 5 for 5%)?")
+   }
+
+   if (is_relative) {
 
   # Compute error based on chosen metric
   error_values <- switch(num_error_metric,
                          symmetric = {
-                          err <-  2 * abs(A - B) / (abs(A) + abs(B) + 2*num_delta)
-                          if (error_as_percentage) err * 100 else err
+                          2 * abs(A - B) / (abs(A) + abs(B) + 2*num_delta)
                          },
                          stabilised_relative = {
-                          err <- abs(A - B) / (abs(A) + num_delta)
-                           if (error_as_percentage) err * 100 else err
-                         },
-                         absolute = {
-                           stop("Percentage-based threshold is not meaningful for absolute error metric. Use num_epsilon_type = 'absolute'.")
+                         abs(A - B) / (abs(A) + num_delta)
                          }
-
   )
-  metric_name <- paste0(num_error_metric, "_error_pct")
-
-  } else {
+  metric_name <- paste0(num_error_metric, "_error")
+  epsilon_used <- if (num_epsilon_scale == "percent") num_epsilon / 100 else num_epsilon
+   } else {
     # num_epsilon_type == "absolute"
     # Absolute error on original scale
     error_values <- abs(A - B)
+    epsilon_used <- num_epsilon
     metric_name <- "absolute_error"
 
   }
 
-  at_risk <- error_values < num_epsilon
+  at_risk <- error_values < epsilon_used
 
   # Output reporting table
   result <- data.frame(
@@ -121,8 +154,9 @@ evaluate_numeric <- function(A, B, original_data,
     Original = A,
     Predicted = B,
     error_metric = error_values,
-    num_epsilon = num_epsilon,
-    num_epsilon_type = num_epsilon_type,
+    num_epsilon_input = num_epsilon,
+    num_epsilon = epsilon_used,
+    num_epsilon_scale = if (is_relative) num_epsilon_scale else NA_character_,
     at_risk = at_risk,
     stringsAsFactors = FALSE
   )
@@ -130,7 +164,7 @@ evaluate_numeric <- function(A, B, original_data,
 
   # Filter to at-risk only if return_all_records is FALSE
   if (!return_all_records) {
-    result <- result[result$at_risk == TRUE, ]
+    result <- result[result$at_risk == TRUE, , drop = FALSE]
   }
 
   return(list(

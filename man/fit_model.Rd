@@ -11,11 +11,13 @@ fit_model(
   original_data,
   sensitive_attribute,
   lm.control = list(),
-  ranger.control = list()
+  ranger.control = list(),
+  rpart.control = list(),
+  xgb.control = list()
 )
 }
 \arguments{
-\item{model}{A string specifying the model type: either \code{"lm"} or \code{"rf"}.}
+\item{model}{A string specifying the model type: \code{"lm"}, \code{"rf"}, or \code{"cart"}.}
 
 \item{formula}{A model formula of the form \code{y ~ x1 + x2 + ...}.}
 
@@ -28,12 +30,14 @@ fit_model(
 \item{lm.control}{Optional list of arguments passed to \code{lm()}.}
 
 \item{ranger.control}{Optional list of arguments passed to \code{ranger()}.}
+
+\item{rpart.control}{Optional list of arguments passed to \code{rpart()}.}
 }
 \value{
-A fitted model object from \code{lm()} or \code{ranger()}.
+A fitted model object from \code{lm()}, \code{ranger()}, or \code{rpart()}.
 }
 \description{
 Trains a regression or classification model on synthetic data as part of the RAPID disclosure risk workflow.
-Supports linear models (\code{"lm"}) or random forests via \pkg{ranger}. 
+Supports linear models (\code{"lm"}), random forests via \pkg{ranger}, or CART via \pkg{rpart}.
 Automatically enables probability output for classification when the sensitive attribute is categorical.
 }
