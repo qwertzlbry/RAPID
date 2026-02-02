@@ -115,6 +115,7 @@ rapid <- function(original_data,
                   num_epsilon_type = c("percentage", "absolute"),
                   num_epsilon = NULL, #num_epsilon
                   num_delta = 0.01,
+                  error_as_percentage = FALSE,
 
                   # Categorical-specific
                   cat_eval_method =c("RCS_marginal","RCS_conditional", "NCE"), #cat_eval_method
@@ -201,7 +202,7 @@ rapid <- function(original_data,
     eval <- evaluate_categorical(A, B, cat_tau, original_data, cat_eval_method, sensitive_attribute, return_all_records)
   } else {
   # Continuous evaluation (sub function)----------------------------------------
-    eval <- evaluate_numeric(A, B, original_data, num_error_metric, num_epsilon, num_epsilon_type, num_delta, return_all_records)
+    eval <- evaluate_numeric(A, B, original_data, num_error_metric, num_epsilon, num_epsilon_type, num_delta, error_as_percentage, return_all_records)
   }
 
   if (trace){

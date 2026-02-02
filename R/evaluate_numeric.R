@@ -73,7 +73,7 @@ evaluate_numeric <- function(A, B, original_data,
                              num_epsilon,
                              num_epsilon_type = c("percentage", "absolute"),
                              num_delta = 0.01,
-                             as_percentage = TRUE,
+                             error_as_percentage = FALSE,
                              return_all_records = FALSE) {
 
   num_error_metric <- match.arg(num_error_metric)
@@ -92,11 +92,11 @@ evaluate_numeric <- function(A, B, original_data,
   error_values <- switch(num_error_metric,
                          symmetric = {
                           err <-  2 * abs(A - B) / (abs(A) + abs(B) + 2*num_delta)
-                          if (as_percentage) err * 100 else err
+                          if (error_as_percentage) err * 100 else err
                          },
                          stabilised_relative = {
                           err <- abs(A - B) / (abs(A) + num_delta)
-                           if (as_percentage) err * 100 else err
+                           if (error_as_percentage) err * 100 else err
                          },
                          absolute = {
                            stop("Percentage-based threshold is not meaningful for absolute error metric. Use num_epsilon_type = 'absolute'.")
@@ -128,17 +128,15 @@ evaluate_numeric <- function(A, B, original_data,
   )
   colnames(result)[colnames(result) == "error_metric"] <- metric_name
 
-  # Filter to at-risk only if needed
-  if (return_all_records) {
-    result_df <- result
-  } else {
-    result_df <- result[result$at_risk == TRUE, ]
+  # Filter to at-risk only if return_all_records is FALSE
+  if (!return_all_records) {
+    result <- result[result$at_risk == TRUE, ]
   }
 
   return(list(
     confidence_rate = sum(at_risk)/ nrow(original_data),
     n_at_risk = sum(at_risk),
     percentage = 100 * sum(at_risk) / nrow(original_data),
-    rows_risk_df = result_df
+    rows_risk_df = result
   ))
 }
