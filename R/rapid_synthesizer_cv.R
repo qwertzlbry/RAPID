@@ -31,10 +31,31 @@ rapid_synthesizer_cv <- function(original_data,
   is_categorical <- is.factor(target_vec) ||
     is.character(target_vec)
 
+  # Extract parameters from ... for result object
+  dots <- list(...)  # ← ADD THIS!
+
+  model_type <- if ("model_type" %in% names(dots)) {
+    dots$model_type
+  } else {
+    "rf"  # Default
+  }
+
+  eval_method <- if (is_categorical) {
+    if (!is.null(dots$cat_eval_method)) dots$cat_eval_method else "RCS_marginal"
+  } else {
+    if (!is.null(dots$num_error_metric)) dots$num_error_metric else "symmetric"
+  }
+
+  threshold <- if (is_categorical) {
+    if (!is.null(dots$cat_tau)) dots$cat_tau else NA
+  } else {
+    if (!is.null(dots$num_epsilon)) dots$num_epsilon else NA
+  }
+
   # Create Folds
   if (stratified &&
       is_categorical && requireNamespace("caret", quietly = TRUE)) {
-    folds <- create_stratified_folds(target_vec, k) # utils function
+    folds <- create_stratified_folds(target_vec, k)
   } else {
     folds <- split(1:nrow(original_data), sample(rep(1:k, length.out = nrow(original_data))))
   }
@@ -43,7 +64,7 @@ rapid_synthesizer_cv <- function(original_data,
   if (trace) {
     cat(sprintf("  RAPID Synthesizer CV (%d folds", k))
     if (stratified && is_categorical)
-      cat(", stratified")
+      cat(", stratified)\n")
   }
 
   # Pre-allocate results
@@ -74,7 +95,6 @@ rapid_synthesizer_cv <- function(original_data,
     # Evaluate on test
     if (trace)
       cat(sprintf("evaluating %d... ", length(test_idx)))
-
 
     result <- rapid(
       original_data = original_data[test_idx, ],
@@ -113,12 +133,12 @@ rapid_synthesizer_cv <- function(original_data,
       )
     }
 
-
     if (return_all_records) {
       fold_data[[fold_id]] <- result$risk$rows_risk_df
       fold_data[[fold_id]]$fold <- fold_id
     }
   }
+
   # ===== Aggregate =====
   fold_df <- do.call(rbind, fold_results)
   conf_rates <- fold_df$confidence_rate
@@ -146,14 +166,8 @@ rapid_synthesizer_cv <- function(original_data,
 
   result <- list(
     cv_summary = cv_summary,
-    cv_details = if (return_details)
-      fold_df
-    else
-      NULL,
-    fold_data = if (return_all_records)
-      do.call(rbind, fold_data)
-    else
-      NULL,
+    cv_details = if (return_details) fold_df else NULL,
+    fold_data = if (return_all_records) do.call(rbind, fold_data) else NULL,
     settings = list(
       k = k,
       cv_type = "synthesizer",
@@ -161,20 +175,19 @@ rapid_synthesizer_cv <- function(original_data,
       is_categorical = is_categorical,
       n_original = nrow(original_data),
       sensitive_attribute = sensitive_attribute
-    )
+    ),
+    eval_method = eval_method,
+    model_type = model_type,
+    threshold = threshold
   )
 
-  class(result) <- c("rapid_synthesizer_cv", "rapid_cv", "list")
+  class(result) <- "rapid_cv_result"
 
   if (trace) {
-    cat(
-      sprintf(
-        "  Mean Risk: %.4f [%.4f, %.4f]\n",
-        cv_summary$mean,
-        cv_summary$ci_lower,
-        cv_summary$ci_upper
-      )
-    )
+    cat(sprintf("  Mean Risk: %.4f [%.4f, %.4f]\n",
+                cv_summary$mean,
+                cv_summary$ci_lower,
+                cv_summary$ci_upper))
   }
 
   return(result)

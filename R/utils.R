@@ -296,3 +296,71 @@ plot.rapid_result <- function(x,
 
   invisible(x)
 }
+
+
+#' ################################################################################
+#' Summary method for RAPID results
+#'
+#' @param object A rapid_result object
+#' @param ... Additional arguments (unused)
+#' @export
+summary.rapid_result <- function(object, ...) {
+  cat("RAPID Risk Assessment Summary\n")
+  cat("==============================\n\n")
+
+  cat("Evaluation method:", object$risk$method, "\n")
+  cat("Attacker model:", "Random Forest", "\n\n")  # Could be extracted from object
+
+  cat("Risk Metrics:\n")
+  cat("  Confidence rate:", round(object$risk$confidence_rate, 3), "\n")
+  cat("  Records at risk:", object$risk$n_at_risk,
+      "(", round(object$risk$percentage, 1), "%)\n\n")
+
+  # Threshold info
+  if (!is.null(object$risk$rows_risk_df$cat_tau)) {
+    cat("  Threshold (tau):", object$risk$rows_risk_df$cat_tau[1], "\n\n")
+  } else if (!is.null(object$risk$rows_risk_df$num_epsilon)) {
+    cat("  Threshold (epsilon):", object$risk$rows_risk_df$num_epsilon[1], "\n\n")
+  }
+
+  cat("Model Performance:\n")
+  if (!is.null(object$metrics$accuracy)) {
+    cat("  Accuracy:", round(object$metrics$accuracy, 3), "\n")
+  }
+  if (!is.null(object$metrics$f1_score)) {
+    cat("  F1-score:", round(object$metrics$f1_score, 3), "\n")
+  }
+
+  invisible(object)
+}
+
+#' #############################################################################
+#' Print method for RAPID cross-validation results
+#'
+#' @param x A rapid_cv_result object
+#' @param ... Additional arguments (unused)
+print.rapid_cv_result <- function(x, ...) {
+  cat("RAPID Cross-Validation Results\n")
+  cat("===============================\n")
+  cat("Evaluation method:", x$eval_method, "\n")
+  cat("Attacker model:", x$model_type, "\n")
+  cat("K-folds:", x$settings$k, "\n")
+
+  # Always show both tau and epsilon
+  if (x$settings$is_categorical) {
+    cat("Threshold (tau):", ifelse(!is.na(x$threshold), x$threshold, "NA"), "\n")
+    cat("Threshold (epsilon): NA\n")
+  } else {
+    cat("Threshold (tau): NA\n")
+    cat("Threshold (epsilon):", ifelse(!is.na(x$threshold), x$threshold, "NA"), "\n")
+  }
+
+  cat("\nRisk Estimate:\n")
+  cat("  Mean:", round(x$cv_summary$mean, 3), "\n")
+  cat("  SD:", round(x$cv_summary$sd, 3), "\n")
+  cat("  95% CI: [",
+      round(x$cv_summary$ci_lower, 3), ", ",
+      round(x$cv_summary$ci_upper, 3), "]\n", sep = "")
+
+  invisible(x)
+}

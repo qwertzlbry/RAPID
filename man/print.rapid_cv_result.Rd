@@ -2,7 +2,8 @@
 % Please edit documentation in R/utils.R
 \name{print.rapid_cv_result}
 \alias{print.rapid_cv_result}
-\title{Print method for RAPID cross-validation results}
+\title{#############################################################################
+Print method for RAPID cross-validation results}
 \usage{
 \method{print}{rapid_cv_result}(x, ...)
 }
@@ -12,5 +13,6 @@
 \item{...}{Additional arguments (unused)}
 }
 \description{
+#############################################################################
 Print method for RAPID cross-validation results
 }
