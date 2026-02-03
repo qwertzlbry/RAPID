@@ -252,10 +252,13 @@ rapid <- function(original_data,
   if (trace){
     message("Time: ", round(difftime(Sys.time(), time_start, units = "secs"), 2), " seconds")
   }
-  return(list(
+
+  result <- list(
     risk = eval, # output from evaluate_numeric() or evaluate_categorical_prediction()
     metrics = metrics  # output from compute_model_metrics()
-  ))
+  )
+  class(result) <- "rapid_result"
+return(result)
 }
 
 #' @rdname rapid

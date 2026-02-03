@@ -168,6 +168,7 @@ evaluate_numeric <- function(A, B, original_data,
   }
 
   return(list(
+    method = num_error_metric,
     confidence_rate = sum(at_risk)/ nrow(original_data),
     n_at_risk = sum(at_risk),
     percentage = 100 * sum(at_risk) / nrow(original_data),
