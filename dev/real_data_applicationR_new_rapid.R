@@ -57,7 +57,7 @@ compute_rapid_new <- function(original_data,
                               y = "income",
                               tau = 0.3,        # normalized gain threshold
                               model = "rf",
-                              n_boot = 500) {
+                              n_boot = 1000) {
 
   quasi_ids <- setdiff(colnames(original_data), y)
 
@@ -106,7 +106,8 @@ compute_rapid_new <- function(original_data,
 cat("Computing RAPID across tau values for threshold curve...\n")
 
 taus <- seq(0.0, 1.0, by = 0.05) # Reduced for speed; decrease to 0.05 for final
-R <- n_boot_curve <- 50  # Reduced for speed; increase to 500 for final
+R <- n_boot_curve <- 500
+# Reduced for speed; increase to 500 for final
 mymodel <- "rf" # Used for speed; use "rf" for final.
 
 # Compute RAPID for each tau and each synthetic replicate

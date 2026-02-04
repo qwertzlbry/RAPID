@@ -8,7 +8,7 @@ Plot method for RAPID results}
 \method{plot}{rapid_result}(
   x,
   tau_range = seq(0, 1, by = 0.05),
-  epsilon_range = seq(0, 20, by = 1),
+  epsilon_range = seq(0, 1, by = 0.05),
   ...
 )
 }

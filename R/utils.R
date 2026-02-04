@@ -199,7 +199,7 @@ print.rapid_result <- function(x, type = "summary", ...) {
 #' @export
 plot.rapid_result <- function(x,
                               tau_range = seq(0, 1, by = 0.05),
-                              epsilon_range = seq(0, 20, by = 1),
+                              epsilon_range = seq(0, 1, by = 0.05),
                               ...) {
 
   # Determine if categorical or numeric
@@ -246,6 +246,9 @@ plot.rapid_result <- function(x,
     # Compute RAPID for different epsilon values
     # (Re-evaluate existing errors with different thresholds to show sensitivity)
     if (!is.null(epsilon_scale) && !is.na(epsilon_scale) && epsilon_scale == "percent") {
+      if (missing(epsilon_range)) {
+        epsilon_range <- seq(0, 100, by = 5)
+      }
       epsilon_range_prop <- epsilon_range / 100
       rapid_values <- sapply(epsilon_range_prop, function(eps) {
         sum(errors < eps) / length(errors)

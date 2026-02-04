@@ -37,7 +37,7 @@ synths <- synthpop::syn(df, m = 5, method = "cart")
 synthetic_list <- synths$syn  # List of 5 synthetic datasets
 
 # Define function to compute RAPID for one replicate
-compute_rapid_cat <- function(original_data, synthetic_data, y = "income", tau = 0.3, model = "rf", n_boot = 500) {
+compute_rapid_cat <- function(original_data, synthetic_data, y = "income", cat_tau = 0.3, model = "rf", n_boot = 1000) {
   # Fit model on synthetic data and evaluate on original
   rapid_result <- rapid(
     original_data = original_data,
@@ -45,7 +45,7 @@ compute_rapid_cat <- function(original_data, synthetic_data, y = "income", tau =
     quasi_identifiers = setdiff(colnames(original_data), y),
     sensitive_attribute = y,
     model_type = model,
-    tau = tau,
+    cat_tau = cat_tau,
     trace = FALSE
   )
 
@@ -60,7 +60,7 @@ compute_rapid_cat <- function(original_data, synthetic_data, y = "income", tau =
         quasi_identifiers = setdiff(colnames(original_data), y),
         sensitive_attribute = y,
         model_type = model,
-        tau = tau,
+        cat_tau = cat_tau,
         trace = FALSE
       )
       return(rapid_i$risk$confidence_rate)
@@ -78,7 +78,7 @@ compute_rapid_cat <- function(original_data, synthetic_data, y = "income", tau =
 
 # Run across 5 synthetic replicates
 rapid_results <- lapply(synthetic_list, function(syn_df) {
-  compute_rapid_cat(original_data = df, synthetic_data = syn_df, tau = 0.3, n_boot = 10)
+  compute_rapid_cat(original_data = df, synthetic_data = syn_df, cat_tau = 0.3, n_boot = 1000)
 })
 
 # Aggregate and print results
@@ -100,8 +100,8 @@ curve_vals <- sapply(taus, function(t) {
     original_data = df,
     synthetic_data = synthetic_list[[1]],
     y = "income",
-    tau = t,
-    n_boot = 10
+    cat_tau = t,
+    n_boot = 100
   )$rapid
 })
 
