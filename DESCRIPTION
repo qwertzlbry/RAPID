@@ -3,10 +3,10 @@ Package: RAPID
 Title: Risk Assessment through Prediction for Inference-based Disclosure
 Version: 0.1.0
 Authors@R: c(
-    person("Matthias", "Templ", , "matthias.templ@fhnw.ch", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-8638-5276")),
-    person("Oscar", "Thees", , "oscar.thees@fhnw.ch", role = "aut",
+    person("Oscar", "Thees", , "oscar.thees@fhnw.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0001-9378-4988")),
+    person("Matthias", "Templ", , "matthias.templ@fhnw.ch", role = c("aut"),
+           comment = c(ORCID = "0000-0002-8638-5276")),
     person("Roman", "Müller", , "roman.mueller@fhnw.ch", role = "aut",
            comment = c(ORCID = "0009-0007-2142-3896"))
   )
