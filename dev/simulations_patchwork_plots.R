@@ -1,9 +1,5 @@
 library(patchwork)
 
-
-
-
-
 p <- ggplot(sim1_long, aes(x = kappa, y = value, color = metric, group = metric)) +
   geom_line(size = 1.2) +
   geom_ribbon(aes(ymin = value - sd_value, ymax = value + sd_value, fill = metric),
