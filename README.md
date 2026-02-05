@@ -1,4 +1,4 @@
-# RAPID: Risk Assessment through Prediction for Inference-based Disclosure
+# RAPID: Risk of Attribute Prediction-Induced Disclosure in Synthetic Microdata
 
 RAPID is an R package for assessing attribute inference risk in synthetic microdata using machine learning-based attacker models. 
 It provides record-level risk scores with interpretable thresholds for both categorical and continuous sensitive attributes.
