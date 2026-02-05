@@ -1,2 +1,5 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^assets$
+^dev$
+^LICENSE\.md$

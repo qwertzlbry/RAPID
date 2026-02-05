@@ -1,4 +1,5 @@
-#' @importFrom graphics plot
+#' @importFrom graphics grid points text
+#' @importFrom stats binomial complete.cases glm median model.matrix qnorm sd
 NULL
 ################################################################################
 create_stratified_folds <- function(y, k) {
@@ -233,7 +234,7 @@ plot.rapid_result <- function(x,
     current_rapid <- x$risk$confidence_rate
     points(current_tau, current_rapid, pch = 19, col = "red", cex = 1.5)
     text(current_tau, current_rapid,
-         paste0("τ = ", current_tau, "\nRAPID = ", round(current_rapid, 3)),
+         paste0("tau = ", current_tau, "\nRAPID = ", round(current_rapid, 3)),
          pos = 4, col = "red")
     grid()
 
@@ -292,7 +293,7 @@ plot.rapid_result <- function(x,
     current_rapid <- x$risk$confidence_rate
     points(current_eps, current_rapid, pch = 19, col = "red", cex = 1.5)
     text(current_eps, current_rapid,
-         paste0("ε = ", round(current_eps, 3), "\nRAPID = ", round(current_rapid, 3)),
+         paste0("epsilon = ", round(current_eps, 3), "\nRAPID = ", round(current_rapid, 3)),
          pos = 4, col = "red")
     grid()
   }

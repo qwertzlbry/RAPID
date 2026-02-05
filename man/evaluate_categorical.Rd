@@ -60,61 +60,12 @@ A list with elements depending on the method. All methods return:
     or only at-risk records (if \code{FALSE}), including original data, predictions,
     risk scores, and \code{at_risk} flag}
 }
-
-  Method-specific additional components:
-
-  For \code{RCS_conditional}:
-  \itemize{
-    \item{\code{relative_score}}{Vector of per-observation ratios: \eqn{g_i / b_i}}
-    \item{\code{baseline}}{Vector of class-conditional baselines}
-    \item{\code{true_probs}}{Vector of predicted probabilities for the true class (\eqn{g_i})}
-  }
-
-  For \code{RCS_marginal}:
-  \itemize{
-    \item{\code{normalized_gain}}{Vector of per-observation normalized improvements over baseline}
-    \item{\code{baseline}}{Vector of marginal baselines from original data}
-    \item{\code{true_probs}}{Vector of predicted probabilities for the true class (\eqn{g_i})}
-  }
-
-  For \code{NCE}:
-  \itemize{
-    \item{\code{normalized_ce}}{Vector of normalized cross-entropy values}
-    \item{\code{true_probs}}{Vector of predicted probabilities for the true class}
-  }
 }
 \description{
 Computes the RAPID metric for a categorical sensitive attribute by comparing
 predicted class probabilities from a model trained on synthetic data against
 the true labels in the original data. Supports multiple evaluation methods
 for measuring inferential disclosure risk.
-}
-\details{
-The choice of method affects both the interpretation and recommended threshold:
-
-\strong{RCS_conditional} (class-conditional baseline):
-\itemize{
-  \item Measures: "Is this observation unusual compared to others in its class?"
-  \item Use case: Identifying outliers within classes
-  \item Recommended cat_tau: 1.25 (25\% better than class average)
-  \item Note: Risk may decrease as model quality increases (paradoxical behavior)
-}
-
-\strong{RCS_marginal} (marginal baseline, recommended):
-\itemize{
-  \item Measures: "Can the attribute be inferred better than baseline rate?"
-  \item Use case: Inferential disclosure risk assessment
-  \item Recommended cat_tau: 0.3 (30\% of possible improvement over baseline)
-  \item Advantages: Fair across classes, accounts for class imbalance, consistent with
-    numeric case, monotonic with model quality
-}
-
-\strong{NCE} (Normalized Cross-Entropy):
-\itemize{
-  \item Measures: Information leakage via entropy
-  \item Use case: Information-theoretic risk assessment
-  \item Recommended cat_tau: 0.5-0.7
-}
 }
 \examples{
 \dontrun{

@@ -13,6 +13,7 @@
 #' @param lm.control Optional list of arguments passed to \code{lm()}.
 #' @param ranger.control Optional list of arguments passed to \code{ranger()}.
 #' @param rpart.control Optional list of arguments passed to \code{rpart()}.
+#' @param xgb.control List of control parameters for XGBoost (only used when model_type = "gbm")
 #'
 #' @return A fitted model object from \code{lm()}, \code{ranger()}, or \code{rpart()}.
 #' @export

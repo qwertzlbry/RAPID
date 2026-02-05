@@ -34,6 +34,7 @@
 #'     \item For \code{"absolute"}, \code{num_epsilon} is an absolute error threshold on the original scale
 #'     of the sensitive attribute.
 #'   }
+#' @param num_epsilon_scale Scale for numeric epsilon threshold: "proportion" (default)
 #' @param num_delta Smoothing constant to prevent division by zero in relative error metrics. Default is 0.01.
 #'
 #' @param cat_eval_method Evaluation method for categorical sensitive attributes:

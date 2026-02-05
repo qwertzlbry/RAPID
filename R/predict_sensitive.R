@@ -1,18 +1,18 @@
 #' Predict Sensitive Attribute from Fitted Model
 #'
 #' @param model_type A string: either "lm" or "rf".
-#' @param fit The fitted model object.
+#' @param fit The fitted model_type object.
 #' @param original_data The original data (data frame) on which the predictions are made.
 #' @param sensitive_attribute The name of the sensitive attribute (string).
 #'
 #' @return `B` — predicted values (vector for continuous, matrix or factor for categorical).
 #' @export
-predict_sensitive <- function(model, fit, truth, sensitive_var) {
+predict_sensitive <- function(model_type, fit, original_data, sensitive_attribute) {
 
-  predictions <- switch(model,
+  predictions <- switch(model_type,
 
                         lm = {
-                          stats::predict(fit, newdata = truth)
+                          stats::predict(fit, newdata = original_data)
                         },
 
                         rf = {
@@ -22,14 +22,14 @@ predict_sensitive <- function(model, fit, truth, sensitive_var) {
 
                           # Ensure categorical target remains a factor
                           if (is.factor(fit$call$data[[as.character(fit$call$formula[[2]])]])) {
-                            # Classification: force truth var to be factor (if needed)
-                            if (!is.factor(truth[[sensitive_var]])) {
-                              truth[[sensitive_var]] <- factor(truth[[sensitive_var]],
+                            # Classification: force original_data var to be factor (if needed)
+                            if (!is.factor(original_data[[sensitive_attribute]])) {
+                              original_data[[sensitive_attribute]] <- factor(original_data[[sensitive_attribute]],
                                                                levels = levels(fit$forest$independent.variable.names))
                             }
                           }
 
-                          predict(fit, data = truth, type = "response")$predictions
+                          predict(fit, data = original_data, type = "response")$predictions
                         },
 
                         cart = {
@@ -37,14 +37,14 @@ predict_sensitive <- function(model, fit, truth, sensitive_var) {
                             stop("Model object is not of class 'rpart'")
                           }
 
-                          is_classification <- is.factor(truth[[sensitive_var]])
+                          is_classification <- is.factor(original_data[[sensitive_attribute]])
 
                           if (is_classification) {
-                            probs <- predict(fit, newdata = truth, type = "prob")
+                            probs <- predict(fit, newdata = original_data, type = "prob")
                             probs_df <- as.data.frame(probs)
 
                             # Get levels as CHARACTER
-                            levels_response <- as.character(levels(truth[[sensitive_var]]))
+                            levels_response <- as.character(levels(original_data[[sensitive_attribute]]))
                             colnames_probs <- colnames(probs_df)
 
                             # Check if all levels present
@@ -57,7 +57,7 @@ predict_sensitive <- function(model, fit, truth, sensitive_var) {
                             probs_df[, levels_response, drop = FALSE]
 
                           } else {
-                            predict(fit, newdata = truth)
+                            predict(fit, newdata = original_data)
                           }
                         },
                         gbm = {
@@ -66,12 +66,12 @@ predict_sensitive <- function(model, fit, truth, sensitive_var) {
                           }
 
                           # Reconstruct model matrix
-                          X_test <- model.matrix(fit$.__x_formula__, data = truth)[, -1, drop = FALSE]
+                          X_test <- model.matrix(fit$.__x_formula__, data = original_data)[, -1, drop = FALSE]
                           dtest  <- xgboost::xgb.DMatrix(X_test)
 
                           preds <- predict(fit, newdata = dtest)
 
-                          y_true <- truth[[sensitive_var]]
+                          y_true <- original_data[[sensitive_attribute]]
 
                           ## REGRESSION
                           if (!is.factor(y_true)) {
@@ -105,9 +105,9 @@ predict_sensitive <- function(model, fit, truth, sensitive_var) {
                             stop("Model object is not of class 'glm'")
                           }
 
-                          probs <- predict(fit, newdata = truth, type = "response")
+                          probs <- predict(fit, newdata = original_data, type = "response")
 
-                          levels_response <- as.character(levels(truth[[sensitive_var]]))
+                          levels_response <- as.character(levels(original_data[[sensitive_attribute]]))
 
                           if (length(levels_response) != 2) {
                             stop("Logit only supports binary classification.")

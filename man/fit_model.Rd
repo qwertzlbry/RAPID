@@ -32,6 +32,8 @@ fit_model(
 \item{ranger.control}{Optional list of arguments passed to \code{ranger()}.}
 
 \item{rpart.control}{Optional list of arguments passed to \code{rpart()}.}
+
+\item{xgb.control}{List of control parameters for XGBoost (only used when model_type = "gbm")}
 }
 \value{
 A fitted model object from \code{lm()}, \code{ranger()}, or \code{rpart()}.

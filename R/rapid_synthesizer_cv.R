@@ -32,8 +32,7 @@ rapid_synthesizer_cv <- function(original_data,
     is.character(target_vec)
 
   # Extract parameters from ... for result object
-  dots <- list(...)  # ← ADD THIS!
-
+  dots <- list(...)
   model_type <- if ("model_type" %in% names(dots)) {
     dots$model_type
   } else {
@@ -84,7 +83,7 @@ rapid_synthesizer_cv <- function(original_data,
 
     # Synthesize on train
     if (trace)
-      cat(sprintf("synthesizing %d → ", length(train_idx)))
+      cat(sprintf("synthesizing %d  ", length(train_idx)))
 
     if (!is.null(seed)) {
       synth <- synthesizer(original_data[train_idx, ], seed = seed + fold_id)
@@ -111,7 +110,7 @@ rapid_synthesizer_cv <- function(original_data,
     conf_rate <- result$risk$confidence_rate
 
     if (trace)
-      cat(sprintf("✓ (risk: %.3f)\n", conf_rate))
+      cat(sprintf("done (risk: %.3f)\n", conf_rate))
 
     # Store results as data.frame directly
     if (is_categorical) {

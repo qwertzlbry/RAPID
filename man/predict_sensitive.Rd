@@ -4,12 +4,12 @@
 \alias{predict_sensitive}
 \title{Predict Sensitive Attribute from Fitted Model}
 \usage{
-predict_sensitive(model, fit, truth, sensitive_var)
+predict_sensitive(model_type, fit, original_data, sensitive_attribute)
 }
 \arguments{
-\item{fit}{The fitted model object.}
-
 \item{model_type}{A string: either "lm" or "rf".}
+
+\item{fit}{The fitted model_type object.}
 
 \item{original_data}{The original data (data frame) on which the predictions are made.}
 

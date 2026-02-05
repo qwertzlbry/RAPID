@@ -63,6 +63,8 @@ risk_inferential(...)
   of the sensitive attribute.
 }}
 
+\item{num_epsilon_scale}{Scale for numeric epsilon threshold: "proportion" (default)}
+
 \item{num_delta}{Smoothing constant to prevent division by zero in relative error metrics. Default is 0.01.}
 
 \item{cat_eval_method}{Evaluation method for categorical sensitive attributes:
