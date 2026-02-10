@@ -18,7 +18,7 @@ rapid(
   num_epsilon_scale = c("proportion", "percent"),
   num_delta = 0.01,
   cat_eval_method = c("RCS_marginal", "RCS_conditional", "NCE"),
-  cat_tau = 1,
+  cat_tau = 0.3,
   seed = 2025,
   trace = FALSE,
   return_all_records = FALSE,

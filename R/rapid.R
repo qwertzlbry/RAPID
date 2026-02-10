@@ -164,7 +164,7 @@ rapid <- function(original_data,
 
                   # Categorical-specific
                   cat_eval_method =c("RCS_marginal","RCS_conditional", "NCE"), #cat_eval_method
-                  cat_tau = 1, #cat_tau
+                  cat_tau = 0.3, #cat_tau
 
                   # Varia
                   seed = 2025,
