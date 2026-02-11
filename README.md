@@ -69,11 +69,11 @@ If you use RAPID in your research, please cite:
 ```
 Templ, M., Thees, O., & Müller, R. (2026). 
 RAPID: Risk of Attribute Prediction-Induced Disclosure in Synthetic Microdata.
-arXiv preprint [TBA]
+arXiv:2602.09235
 ```
 
 ## Documentation
 
-- **Paper**: [arXiv link - TBA]
-- **Documentation**: [TBA]
-- **Issues**: [TBA]
+- **Paper**: [arXiv preprint](https://arxiv.org/abs/2602.09235)
+- **Documentation**: A pkgdown website is planned. In the meantime, documentation is available within R via `?rapid` and function help pages.
+- **Issues**: [GitHub Issues](https://github.com/qwertzlbry/RAPID/issues)
