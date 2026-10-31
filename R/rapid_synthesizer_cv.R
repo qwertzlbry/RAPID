@@ -1,3 +1,29 @@
+#' @title RAPID Synthesizer Cross-Validation
+#'
+#' @description
+#' Evaluates the disclosure risk of a synthesizer with k-fold cross-validation.
+#' In each fold, synthetic data are generated from the training part of the
+#' original data and \code{\link{rapid}} is evaluated on the held-out part.
+#'
+#' @param original_data The original dataset (data.frame).
+#' @param synthesizer A function \code{function(data, seed = NULL)} returning a
+#'   synthetic data.frame. If \code{NULL}, \code{synthpop::syn()} is used.
+#' @param quasi_identifiers Character vector of quasi-identifiers.
+#' @param sensitive_attribute Name (character scalar) of the sensitive variable.
+#' @param k Number of folds. Default is 5.
+#' @param stratified Logical; stratify folds by the sensitive attribute
+#'   (categorical only). Default is \code{TRUE}.
+#' @param return_details Logical; return per-fold results. Default is \code{FALSE}.
+#' @param return_all_records Logical; return record-level results of all folds.
+#'   Default is \code{FALSE}.
+#' @param seed Random seed. Default is 2025.
+#' @param trace Logical; print progress. Default is \code{TRUE}.
+#' @param ... Further arguments passed to \code{\link{rapid}}
+#'   (e.g. \code{model_type}, \code{cat_tau}, \code{num_epsilon}).
+#'
+#' @return An object of class \code{rapid_cv_result} with the cross-validated
+#'   risk summary (\code{cv_summary}), optional fold details and the settings used.
+#' @export
 rapid_synthesizer_cv <- function(original_data,
                                  synthesizer = NULL,
                                  quasi_identifiers,

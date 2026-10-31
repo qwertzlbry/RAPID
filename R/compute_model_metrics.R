@@ -40,7 +40,7 @@ compute_model_metrics <- function(A, B) {
     } else {
       pred_class <- B
     }
-    accuracy <- mean(pred_class == A)
+    accuracy <- mean(as.character(pred_class) == as.character(A))
     return(list(accuracy = accuracy))
   } else {
     # Regression case

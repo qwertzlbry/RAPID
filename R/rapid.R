@@ -10,6 +10,7 @@
 #' @param synthetic_data The synthetic dataset (data.frame).
 #' @param quasi_identifiers Character vector of quasi-identifiers used for inference.
 #' @param sensitive_attribute Name (character scalar) of the sensitive variable to be predicted.
+#'   Ordered factors are treated as nominal.
 #' @param model_type Model type for the attacker:
 #'   \code{"rf"} (random forest, default),
 #'   \code{"cart"} (classification/regression tree),
@@ -209,6 +210,15 @@ rapid <- function(original_data,
   # Subset to needed variables--------------------------------------------------
   original_data <- original_data[, c(sensitive_attribute, quasi_identifiers)]
   synthetic_data <- synthetic_data[, c(sensitive_attribute, quasi_identifiers)]
+
+  # Ordered factors are treated as nominal (comparisons between ordered and
+  # unordered factors fail otherwise)
+  if (is.ordered(original_data[[sensitive_attribute]])) {
+    original_data[[sensitive_attribute]] <- factor(original_data[[sensitive_attribute]], ordered = FALSE)
+  }
+  if (is.ordered(synthetic_data[[sensitive_attribute]])) {
+    synthetic_data[[sensitive_attribute]] <- factor(synthetic_data[[sensitive_attribute]], ordered = FALSE)
+  }
 
   # Handle NA in sensitive and known variables (sub function)-------------------
   res <- handle_sensitive_na(original_data, synthetic_data, sensitive_attribute,

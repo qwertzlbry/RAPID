@@ -34,7 +34,8 @@ risk_inferential(...)
 
 \item{quasi_identifiers}{Character vector of quasi-identifiers used for inference.}
 
-\item{sensitive_attribute}{Name (character scalar) of the sensitive variable to be predicted.}
+\item{sensitive_attribute}{Name (character scalar) of the sensitive variable to be predicted.
+Ordered factors are treated as nominal.}
 
 \item{model_type}{Model type for the attacker:
 \code{"rf"} (random forest, default),

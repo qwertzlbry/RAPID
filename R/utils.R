@@ -343,6 +343,7 @@ summary.rapid_result <- function(object, ...) {
 #'
 #' @param x A rapid_cv_result object
 #' @param ... Additional arguments (unused)
+#' @export
 print.rapid_cv_result <- function(x, ...) {
   cat("RAPID Cross-Validation Results\n")
   cat("===============================\n")
