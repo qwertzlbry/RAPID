@@ -1,7 +1,7 @@
 Type: Package
 Package: RAPID
 Title: Risk Assessment through Prediction for Inference-based Disclosure
-Version: 0.1.0
+Version: 0.1.1
 Authors@R: c(
     person("Oscar", "Thees", , "oscar.thees@fhnw.ch", role = c("aut", "cre"),
            comment = c(ORCID = "0009-0001-9378-4988")),
